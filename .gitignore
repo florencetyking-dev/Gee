@@ -1,41 +1,111 @@
-# Compiled Lua sources
-luac.out
+local Players = game:GetService("Players")
+local TextChatService = game:GetService("TextChatService")
 
-# luarocks build files
-*.src.rock
-*.zip
-*.tar.gz
+-- 1. Main Setup
+local screenGui = Instance.new("ScreenGui", Players.LocalPlayer.PlayerGui)
+screenGui.Name = "UltimatePhoneGUI"
 
-# Object files
-*.o
-*.os
-*.ko
-*.obj
-*.elf
+local phoneFrame = Instance.new("Frame", screenGui)
+phoneFrame.Size = UDim2.new(0, 260, 0, 480)
+phoneFrame.Position = UDim2.new(0.5, -130, 0.5, -240)
+phoneFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Instance.new("UICorner", phoneFrame).CornerRadius = UDim.new(0, 25)
 
-# Precompiled Headers
-*.gch
-*.pch
+-- Top Clock
+local clock = Instance.new("TextLabel", phoneFrame)
+clock.Size = UDim2.new(1, 0, 0, 40)
+clock.BackgroundTransparency = 1
+clock.TextColor3 = Color3.new(1, 1, 1)
+clock.Font = Enum.Font.GothamBold
+clock.TextSize = 18
+spawn(function() while wait(1) do clock.Text = os.date("%H:%M:%S") end end)
 
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
-*.def
-*.exp
+-- 2. App Container Logic
+local currentApp = nil
+local homeScreen = Instance.new("Frame", phoneFrame)
+homeScreen.Size = UDim2.new(0.9, 0, 0.75, 0)
+homeScreen.Position = UDim2.new(0.05, 0, 0.1, 0)
+homeScreen.BackgroundTransparency = 1
 
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
+local grid = Instance.new("UIGridLayout", homeScreen)
+grid.CellSize = UDim2.new(0, 100, 0, 100)
 
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
+local function openApp(appFrame)
+    homeScreen.Visible = false
+    if currentApp then currentApp.Visible = false end
+    appFrame.Visible = true
+    currentApp = appFrame
+end
 
+-- Home Button
+local homeBtn = Instance.new("TextButton", phoneFrame)
+homeBtn.Size = UDim2.new(0, 45, 0, 45)
+homeBtn.Position = UDim2.new(0.5, -22, 0.88, 0)
+homeBtn.Text = "HOME"
+homeBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+homeBtn.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", homeBtn).CornerRadius = UDim.new(1, 0)
+
+homeBtn.MouseButton1Click:Connect(function()
+    if currentApp then currentApp.Visible = false end
+    homeScreen.Visible = true
+end)
+
+-- 3. Utility: Create Scrolling App Windows
+local function createBaseApp()
+    local frame = Instance.new("ScrollingFrame", phoneFrame)
+    frame.Size = UDim2.new(0.9, 0, 0.75, 0)
+    frame.Position = UDim2.new(0.05, 0, 0.1, 0)
+    frame.Visible = false
+    frame.BackgroundTransparency = 0.8
+    frame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    frame.ScrollBarThickness = 4
+    local list = Instance.new("UIListLayout", frame)
+    list.Padding = UDim.new(0, 5)
+    return frame
+end
+
+-- APP: Chat Logs
+local chatLogsApp = createBaseApp()
+TextChatService.OnIncomingMessage = function(msg: TextChatMessage)
+    if msg.TextSource then
+        local log = Instance.new("TextLabel", chatLogsApp)
+        log.Size = UDim2.new(1, 0, 0, 20)
+        log.Text = "["..msg.TextSource.Name.."]: "..msg.Text
+        log.TextColor3 = Color3.new(1,1,1)
+        log.BackgroundTransparency = 1
+        log.TextXAlignment = Enum.TextXAlignment.Left
+    end
+end
+
+-- APP: Hubs & Animations (Script Execution)
+local function addScriptBtn(parent, name, code)
+    local btn = Instance.new("TextButton", parent)
+    btn.Size = UDim2.new(1, 0, 0, 40)
+    btn.Text = name
+    btn.BackgroundColor3 = Color3.fromRGB(60, 60, 100)
+    btn.TextColor3 = Color3.new(1,1,1)
+    btn.MouseButton1Click:Connect(function() loadstring(code)() end)
+end
+
+local hubsApp = createBaseApp()
+addScriptBtn(hubsApp, "CatHub", "loadstring(game:HttpGet('https://raw.githubusercontent.com'))()")
+addScriptBtn(hubsApp, "Rochips Panel", "loadstring(game:HttpGet('https://rawscripts.net'))()")
+
+local animsApp = createBaseApp()
+addScriptBtn(animsApp, "FE R15 Animatronic", "loadstring(game:HttpGet('https://raw.githubusercontent.com'))()")
+addScriptBtn(animsApp, "FE Admin Noli", "loadstring(game:HttpGet('https://rawscripts.net'))()")
+
+-- 4. Create App Icons on Home Screen
+local function createIcon(name, frameToOpen)
+    local icon = Instance.new("TextButton", homeScreen)
+    icon.Text = name
+    icon.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+    icon.TextColor3 = Color3.new(1,1,1)
+    Instance.new("UICorner", icon)
+    icon.MouseButton1Click:Connect(function() openApp(frameToOpen) end)
+end
+
+createIcon("Chat Logs", chatLogsApp)
+createIcon("Hubs", hubsApp)
+createIcon("Animations", animsApp)

@@ -1,149 +1,126 @@
 local Players = game:GetService("Players")
-local TextChatService = game:GetService("TextChatService")
+local lp = Players.LocalPlayer
 
--- 1. MAIN CONTAINER
-local screenGui = Instance.new("ScreenGui", Players.LocalPlayer.PlayerGui)
-screenGui.Name = "UnifiedPhoneGUI"
+-- 1. MAIN UI SETUP
+local screenGui = Instance.new("ScreenGui", lp.PlayerGui)
+screenGui.Name = "JoJoPhone_Unified"
+screenGui.ResetOnSpawn = false
 
-local phoneFrame = Instance.new("Frame", screenGui)
-phoneFrame.Size = UDim2.new(0, 260, 0, 480)
-phoneFrame.Position = UDim2.new(0.5, -130, 0.5, -240)
-phoneFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-Instance.new("UICorner", phoneFrame).CornerRadius = UDim.new(0, 25)
+local phone = Instance.new("Frame", screenGui)
+phone.Size = UDim2.new(0.35, 0, 0.7, 0)
+phone.Position = UDim2.new(0.5, 0, 0.5, 0)
+phone.AnchorPoint = Vector2.new(0.5, 0.5)
+phone.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Instance.new("UICorner", phone).CornerRadius = UDim.new(0.08, 0)
+Instance.new("UIAspectRatioConstraint", phone).AspectRatio = 0.54
 
--- 2. HOME PAGE (LOCK SCREEN)
-local homePage = Instance.new("Frame", phoneFrame)
-homePage.Size = UDim2.new(1, 0, 1, 0)
-homePage.BackgroundTransparency = 1
+-- JoJo Background (Giorno/JoJo themed placeholder)
+local bg = Instance.new("ImageLabel", phone)
+bg.Size = UDim2.new(1, 0, 1, 0)
+bg.Image = "rbxassetid://9142678957" -- JoJo Theme Wallpaper
+bg.ScaleType = Enum.ScaleType.Crop
+Instance.new("UICorner", bg).CornerRadius = UDim.new(0.08, 0)
 
-local timeLabel = Instance.new("TextLabel", homePage)
-timeLabel.Size = UDim2.new(1, 0, 0, 80)
-timeLabel.Position = UDim2.new(0, 0, 0.1, 0)
-timeLabel.Text = "4:20"
-timeLabel.TextColor3 = Color3.new(1, 1, 1)
-timeLabel.Font = Enum.Font.GothamBold
-timeLabel.TextSize = 48
-timeLabel.BackgroundTransparency = 1
-spawn(function() while wait(1) do timeLabel.Text = os.date("%H:%M") end end)
+-- 2. NAVIGATION SYSTEMS
+local home = Instance.new("Frame", phone)
+home.Size = UDim2.new(1, 0, 1, 0)
+home.BackgroundTransparency = 1
 
-local dateLabel = Instance.new("TextLabel", homePage)
-dateLabel.Size = UDim2.new(1, 0, 0, 20)
-dateLabel.Position = UDim2.new(0, 0, 0.25, 0)
-dateLabel.Text = "Reckoning Day"
-dateLabel.TextColor3 = Color3.new(0.8, 0.8, 0.8)
-dateLabel.Font = Enum.Font.Gotham
-dateLabel.TextSize = 14
-dateLabel.BackgroundTransparency = 1
+local listPage = Instance.new("ScrollingFrame", phone)
+listPage.Size = UDim2.new(0.9, 0, 0.75, 0)
+listPage.Position = UDim2.new(0.05, 0, 0.12, 0)
+listPage.Visible = false
+listPage.BackgroundTransparency = 1
+listPage.CanvasSize = UDim2.new(0, 0, 0, 0)
+local listLayout = Instance.new("UIListLayout", listPage)
+listLayout.Padding = UDim.new(0, 8)
 
-local unlockBtn = Instance.new("TextButton", homePage)
-unlockBtn.Size = UDim2.new(0.8, 0, 0.1, 0)
-unlockBtn.Position = UDim2.new(0.1, 0, 0.8, 0)
-unlockBtn.Text = "Click to Unlock"
-unlockBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-unlockBtn.TextColor3 = Color3.new(1, 1, 1)
-Instance.new("UICorner", unlockBtn)
-
--- 3. APP SELECTION (MAIN MENU)
-local appSelection = Instance.new("Frame", phoneFrame)
-appSelection.Size = UDim2.new(1, 0, 0.85, 0)
-appSelection.Position = UDim2.new(0, 0, 0, 0)
-appSelection.BackgroundColor3 = Color3.fromRGB(230, 230, 230)
-appSelection.Visible = false
-Instance.new("UICorner", appSelection).CornerRadius = UDim.new(0, 25)
-
-local listLayout = Instance.new("UIListLayout", appSelection)
-listLayout.Padding = UDim.new(0, 2)
-listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-
--- 4. UTILITY: CREATE IOS-STYLE APP PAGES
-local function createBaseApp(title)
-    local appPage = Instance.new("ScrollingFrame", phoneFrame)
-    appPage.Size = UDim2.new(1, 0, 0.8, 0)
-    appPage.Position = UDim2.new(0, 0, 0.1, 0)
-    appPage.Visible = false
-    appPage.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
-    appPage.AutomaticCanvasSize = Enum.AutomaticSize.Y
-    appPage.ScrollBarThickness = 0
-    appPage.BorderSizePixel = 0
-    
-    local header = Instance.new("TextLabel", appPage)
-    header.Size = UDim2.new(1, 0, 0, 50)
-    header.Text = title
-    header.BackgroundColor3 = Color3.fromRGB(120, 140, 180)
-    header.TextColor3 = Color3.new(1, 1, 1)
-    header.Font = Enum.Font.GothamBold
-    header.TextSize = 20
-    
-    local list = Instance.new("UIListLayout", appPage)
-    list.Padding = UDim.new(0, 0)
-    return appPage
+local function showPage(title)
+    home.Visible = false
+    listPage.Visible = true
+    listPage:ClearAllChildren()
+    local nl = Instance.new("UIListLayout", listPage)
+    nl.Padding = UDim.new(0, 8)
 end
 
-local function addListItem(parent, name, code)
-    local btn = Instance.new("TextButton", parent)
+local function addBtn(text, func)
+    local btn = Instance.new("TextButton", listPage)
     btn.Size = UDim2.new(1, 0, 0, 45)
-    btn.BackgroundColor3 = Color3.new(1, 1, 1)
-    btn.BorderSizePixel = 1
-    btn.BorderColor3 = Color3.fromRGB(210, 210, 210)
-    btn.Text = "  " .. name
+    btn.Text = text
+    btn.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
+    btn.TextColor3 = Color3.new(1, 1, 1)
     btn.Font = Enum.Font.GothamMedium
-    btn.TextColor3 = Color3.new(0, 0, 0)
-    btn.TextSize = 15
-    btn.TextXAlignment = Enum.TextXAlignment.Left
-    if code then btn.MouseButton1Click:Connect(function() loadstring(code)() end) end
-    return btn
+    btn.TextScaled = true
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
+    btn.MouseButton1Click:Connect(func)
 end
 
--- 5. DEFINE INDIVIDUAL APPS
-local chatLogs = createBaseApp("Chat Logs")
-local hubsApp = createBaseApp("Hubs")
-local animsApp = createBaseApp("Animations")
+-- 3. THE "STUFF" (SCRIPTS)
+-- CAT ANIMATION LOGIC
+local function runCatAnim()
+    local char = lp.Character or lp.CharacterAdded:Wait()
+    local hum = char:WaitForChild("Humanoid")
+    if char:FindFirstChild("Animate") then char.Animate:Destroy() end
+    local anim = Instance.new("Animation")
+    anim.AnimationId = "rbxassetid://130995344283026"
+    local load = hum:LoadAnimation(anim)
+    load.Looped = true
+    load:Play()
+    hum.WalkSpeed = 45
+end
 
--- App Selection Buttons
-local function createAppBtn(name, icon, target)
-    local btn = addListItem(appSelection, icon .. " " .. name)
-    btn.MouseButton1Click:Connect(function()
-        appSelection.Visible = false
-        target.Visible = true
+-- TREZ ADMIN LOGIC
+local function runTrez()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com"))()
+end
+
+-- 4. HOME SCREEN APPS
+local grid = Instance.new("UIGridLayout", home)
+grid.CellSize = UDim2.new(0.28, 0, 0.15, 0)
+grid.Padding = UDim2.new(0.04, 0, 0.05, 0)
+
+local function createApp(name, action)
+    local app = Instance.new("TextButton", home)
+    app.Text = name
+    app.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+    app.TextColor3 = Color3.new(1, 1, 1)
+    app.TextScaled = true
+    Instance.new("UICorner", app)
+    app.MouseButton1Click:Connect(action)
+end
+
+createApp("Logs", function()
+    showPage()
+    -- Simple logger integration
+    lp.Chatted:Connect(function(msg)
+        local l = Instance.new("TextLabel", listPage)
+        l.Size = UDim2.new(1, 0, 0, 20)
+        l.Text = lp.Name .. ": " .. msg
+        l.BackgroundTransparency = 1
+        l.TextColor3 = Color3.new(1, 1, 1)
+        l.TextScaled = true
+        listPage.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y)
     end)
-end
-
-createAppBtn("Chat Logs", "💬", chatLogs)
-createAppBtn("Hubs", "💻", hubsApp)
-createAppBtn("Animations", "🏃", animsApp)
-
--- 6. APP CONTENT LOGIC
--- Chat Logs Updater
-TextChatService.OnIncomingMessage = function(msg: TextChatMessage)
-    if msg.TextSource then
-        addListItem(chatLogs, "[" .. msg.TextSource.Name .. "]: " .. msg.Text)
-    end
-end
-
--- Script Lists
-addListItem(hubsApp, "CatHub", "loadstring(game:HttpGet('https://raw.githubusercontent.com'))()")
-addListItem(hubsApp, "Rochips Panel", "loadstring(game:HttpGet('https://rawscripts.net'))()")
-
-addListItem(animsApp, "FE R15 Animatronic", "loadstring(game:HttpGet('https://raw.githubusercontent.com'))()")
-addListItem(animsApp, "FE Admin Noli", "loadstring(game:HttpGet('https://rawscripts.net'))()")
-
--- 7. NAVIGATION
-unlockBtn.MouseButton1Click:Connect(function()
-    homePage.Visible = false
-    appSelection.Visible = true
 end)
 
-local backBtn = Instance.new("TextButton", phoneFrame)
-backBtn.Size = UDim2.new(0, 45, 0, 45)
-backBtn.Position = UDim2.new(0.5, -22, 0.88, 0)
-backBtn.Text = "○"
-backBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-backBtn.TextColor3 = Color3.new(1,1,1)
-Instance.new("UICorner", backBtn).CornerRadius = UDim.new(1, 0)
+createApp("Hubs", function()
+    showPage()
+    addBtn("Execute Trez Admin", runTrez)
+end)
 
-backBtn.MouseButton1Click:Connect(function()
-    chatLogs.Visible = false
-    hubsApp.Visible = false
-    animsApp.Visible = false
-    appSelection.Visible = true
+createApp("Anims", function()
+    showPage()
+    addBtn("Start Cat Animation", runCatAnim)
+end)
+
+-- Home Bar to return
+local homeBtn = Instance.new("TextButton", phone)
+homeBtn.Size = UDim2.new(0.4, 0, 0.02, 0)
+homeBtn.Position = UDim2.new(0.3, 0, 0.96, 0)
+homeBtn.Text = ""
+homeBtn.BackgroundColor3 = Color3.new(1, 1, 1)
+Instance.new("UICorner", homeBtn)
+homeBtn.MouseButton1Click:Connect(function()
+    home.Visible = true
+    listPage.Visible = false
 end)

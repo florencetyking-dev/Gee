@@ -1,68 +1,113 @@
--- [[ TIDE HUB: INVENTORY TOOL VERSION ]]
-local Players = game:GetService("Players")
-local Player = Players.LocalPlayer
-local Backpack = Player:WaitForChild("Backpack")
-local TideVersion = "1.0.5 BETA"
+local tool = script.Parent
+local player = game.Players.LocalPlayer
+local pGui = player:WaitForChild("PlayerGui")
 
--- [[ 1. CREATE THE TOOL ]]
-local TideTool = Instance.new("Tool")
-TideTool.Name = "Tide Hub"
-TideTool.RequiresHandle = false
-TideTool.TextureId = "rbxassetid://12523447385" -- Custom Tide Icon
-TideTool.Parent = Backpack
-
--- [[ 2. UI SETUP (Hidden by default) ]]
-local ScreenGui = Instance.new("ScreenGui", Player:WaitForChild("PlayerGui"))
-ScreenGui.Name = "TideUI"
-ScreenGui.Enabled = false
+-- Create the UI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "RiptideHub"
 ScreenGui.ResetOnSpawn = false
+ScreenGui.Enabled = false -- Hidden by default
+ScreenGui.Parent = pGui
 
+-- Main Container
 local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 300, 0, 400)
-MainFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
-MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.Size = UDim2.new(0, 350, 0, 520)
+MainFrame.Position = UDim2.new(0.5, -175, 0.5, -260)
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
 MainFrame.BorderSizePixel = 0
-Instance.new("UICorner", MainFrame)
+MainFrame.ClipsDescendants = true
 
--- [[ 3. PIXEL TITLE ]]
-local Title = Instance.new("TextLabel", MainFrame)
+-- Background Image
+local BgImage = Instance.new("ImageLabel", MainFrame)
+BgImage.Size = UDim2.new(1, 0, 1, 0)
+BgImage.Image = "rbxassetid://8638932437"
+BgImage.BackgroundTransparency = 0.2
+BgImage.ZIndex = 0
+
+-- Top Bar Controls (Minimize/Close)
+local Controls = Instance.new("Frame", MainFrame)
+Controls.Size = UDim2.new(1, 0, 0, 30)
+Controls.BackgroundTransparency = 1
+Controls.ZIndex = 10
+
+local CloseBtn = Instance.new("TextButton", Controls)
+CloseBtn.Text = "X"
+CloseBtn.Size = UDim2.new(0, 30, 0, 30)
+CloseBtn.Position = UDim2.new(1, -35, 0, 5)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+CloseBtn.TextColor3 = Color3.new(1, 1, 1)
+
+local MinBtn = Instance.new("TextButton", Controls)
+MinBtn.Text = "-"
+MinBtn.Size = UDim2.new(0, 30, 0, 30)
+MinBtn.Position = UDim2.new(1, -70, 0, 5)
+MinBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+MinBtn.TextColor3 = Color3.new(1, 1, 1)
+
+-- Views
+local LockScreen = Instance.new("Frame", MainFrame)
+LockScreen.Size = UDim2.new(1, 0, 1, 0)
+LockScreen.BackgroundTransparency = 1
+LockScreen.ZIndex = 2
+
+local HomeView = Instance.new("Frame", MainFrame)
+HomeView.Size = UDim2.new(1, 0, 0.9, 0)
+HomeView.BackgroundTransparency = 1
+HomeView.Visible = false
+
+local ScriptsView = Instance.new("ScrollingFrame", MainFrame)
+ScriptsView.Size = UDim2.new(1, 0, 0.8, 0)
+ScriptsView.Position = UDim2.new(0, 0, 0.1, 0)
+ScriptsView.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
+ScriptsView.Visible = false
+
+-- Lock Screen Content
+local Title = Instance.new("TextLabel", LockScreen)
+Title.Text = "riptidehub"
 Title.Size = UDim2.new(1, 0, 0, 50)
-Title.Text = "TIDE HUB"
-Title.TextColor3 = Color3.fromRGB(0, 200, 255)
-Title.Font = Enum.Font.Code
-Title.TextSize = 25
+Title.TextColor3 = Color3.new(1, 1, 1)
 Title.BackgroundTransparency = 1
 
--- [[ 4. TOOL LOGIC (Toggle UI on Equip) ]]
-TideTool.Equipped:Connect(function()
-    ScreenGui.Enabled = true -- Opens menu when you select the tool
+local TimeLabel = Instance.new("TextLabel", LockScreen)
+TimeLabel.Text = "4:20"
+TimeLabel.Position = UDim2.new(0, 0, 0.1, 0)
+TimeLabel.Size = UDim2.new(1, 0, 0, 60)
+TimeLabel.TextSize = 50
+TimeLabel.Font = Enum.Font.SourceSansBold
+TimeLabel.TextColor3 = Color3.new(1, 1, 1)
+TimeLabel.BackgroundTransparency = 1
+
+local Slider = Instance.new("TextButton", LockScreen)
+Slider.Size = UDim2.new(0.8, 0, 0, 45)
+Slider.Position = UDim2.new(0.1, 0, 0.8, 0)
+Slider.BackgroundColor3 = Color3.fromRGB(60, 20, 120)
+Slider.Text = "slide to unlock           >"
+Slider.TextColor3 = Color3.new(1, 1, 1)
+
+-- Tool Logic: Equip to Show, Unequip to Hide
+tool.Equipped:Connect(function()
+    ScreenGui.Enabled = true
 end)
 
-TideTool.Unequipped:Connect(function()
-    ScreenGui.Enabled = false -- Closes menu when you deselect
-end)
-
--- [[ 5. FUNCTIONAL BUTTONS ]]
-local function CreateBtn(txt, yPos, callback)
-    local b = Instance.new("TextButton", MainFrame)
-    b.Size = UDim2.new(0.8, 0, 0, 40)
-    b.Position = UDim2.new(0.1, 0, 0, yPos)
-    b.Text = txt
-    b.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    b.TextColor3 = Color3.new(1, 1, 1)
-    b.Font = Enum.Font.SourceSansBold
-    Instance.new("UICorner", b)
-    b.MouseButton1Click:Connect(callback)
-end
-
-CreateBtn("SPEED HACK", 100, function() 
-    Player.Character.Humanoid.WalkSpeed = 100 
-end)
-
-CreateBtn("RESET SPEED", 150, function() 
-    Player.Character.Humanoid.WalkSpeed = 16 
-end)
-
-CreateBtn("CLOSE HUB", 330, function()
+tool.Unequipped:Connect(function()
     ScreenGui.Enabled = false
 end)
+
+-- Button Logic
+Slider.MouseButton1Click:Connect(function()
+    LockScreen.Visible = false
+    HomeView.Visible = true
+end)
+
+CloseBtn.MouseButton1Click:Connect(function()
+    ScreenGui.Enabled = false
+end)
+
+-- Simple Script List Generation
+local scripts = {"Glitcher", "Knife", "Krystal Dance", "Link Between Worlds"}
+for i, name in pairs(scripts) do
+    local b = Instance.new("TextButton", ScriptsView)
+    b.Size = UDim2.new(0.9, 0, 0, 35)
+    b.Position = UDim2.new(0.05, 0, 0, (i-1)*40)
+    b.Text = name
+end

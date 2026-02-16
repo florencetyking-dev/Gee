@@ -1,145 +1,265 @@
 local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local backpack = player:WaitForChild("Backpack")
-local playerGui = player:WaitForChild("PlayerGui")
+local LocalPlayer = Players.LocalPlayer
+local Char2 = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local h = Char2:FindFirstChildOfClass("Humanoid") or Char2:WaitForChild("Humanoid")
 
--- 1. Create the Tool in your Inventory
-local tool = Instance.new("Tool")
-tool.Name = "RiptideHub"
-tool.RequiresHandle = false -- No physical part needed for the UI to show
-tool.Parent = backpack
+if h.RigType ~= Enum.HumanoidRigType.R6 then return end
 
--- 2. Create the UI Container
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "RiptideUI"
-screenGui.Enabled = false
-screenGui.ResetOnSpawn = false
-screenGui.Parent = playerGui
-
--- 3. Main Phone Frame with Gradient Background
-local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 320, 0, 580)
-mainFrame.Position = UDim2.new(0.5, -160, 0.5, -290)
-mainFrame.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
-mainFrame.BorderSizePixel = 0
-mainFrame.Parent = screenGui
-
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 25)
-corner.Parent = mainFrame
-
--- Apply requested Decal Background (8638932437)
-local bgImage = Instance.new("ImageLabel")
-bgImage.Size = UDim2.new(1, 0, 1, 0)
-bgImage.BackgroundTransparency = 1
-bgImage.Image = "rbxassetid://8638932437"
-bgImage.Parent = mainFrame
-
--- 4. Lock Screen Interface (Time: 4:20)
-local lockScreen = Instance.new("Frame")
-lockScreen.Size = UDim2.new(1, 0, 1, 0)
-lockScreen.BackgroundTransparency = 1
-lockScreen.Parent = mainFrame
-
-local timeLabel = Instance.new("TextLabel")
-timeLabel.Size = UDim2.new(1, 0, 0, 80)
-timeLabel.Position = UDim2.new(0, 0, 0.1, 0)
-timeLabel.Text = "4:20"
-timeLabel.TextSize = 70
-timeLabel.TextColor3 = Color3.new(1, 1, 1)
-timeLabel.Font = Enum.Font.SourceSansBold
-timeLabel.BackgroundTransparency = 1
-timeLabel.Parent = lockScreen
-
-local subText = Instance.new("TextLabel")
-subText.Size = UDim2.new(1, 0, 0, 20)
-subText.Position = UDim2.new(0, 0, 0.22, 0)
-subText.Text = "Reckoning Day"
-subText.TextColor3 = Color3.new(1, 1, 1)
-subText.BackgroundTransparency = 1
-subText.Parent = lockScreen
-
--- 5. Unlock Mechanism
-local unlockBtn = Instance.new("TextButton")
-unlockBtn.Size = UDim2.new(0.8, 0, 0, 50)
-unlockBtn.Position = UDim2.new(0.1, 0, 0.8, 0)
-unlockBtn.BackgroundColor3 = Color3.fromRGB(60, 20, 100)
-unlockBtn.Text = "Slide to Unlock >"
-unlockBtn.TextColor3 = Color3.new(1, 1, 1)
-unlockBtn.Parent = lockScreen
-
-local uiCornerBtn = Instance.new("UICorner")
-uiCornerBtn.Parent = unlockBtn
-
--- 6. Main Hub Content
-local contentFrame = Instance.new("Frame")
-contentFrame.Size = UDim2.new(1, 0, 1, 0)
-contentFrame.BackgroundTransparency = 1
-contentFrame.Visible = false
-contentFrame.Parent = mainFrame
-
-local homeHeader = Instance.new("TextLabel")
-homeHeader.Text = "Home"
-homeHeader.Size = UDim2.new(0, 100, 0, 50)
-homeHeader.Position = UDim2.new(0.05, 0, 0.05, 0)
-homeHeader.TextColor3 = Color3.new(1, 1, 1)
-homeHeader.Font = Enum.Font.SourceSansBold
-homeHeader.TextSize = 35
-homeHeader.BackgroundTransparency = 1
-homeHeader.Parent = contentFrame
-
--- Status Indicators
-local statusBox = Instance.new("TextLabel")
-statusBox.Size = UDim2.new(0.4, 0, 0, 40)
-statusBox.Position = UDim2.new(0.05, 0, 0.3, 0)
-statusBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-statusBox.TextColor3 = Color3.fromRGB(0, 180, 0)
-statusBox.Text = "Status: Connected"
-statusBox.Parent = contentFrame
-
-local scriptsBox = Instance.new("TextLabel")
-scriptsBox.Size = UDim2.new(0.4, 0, 0, 40)
-scriptsBox.Position = UDim2.new(0.55, 0, 0.3, 0)
-scriptsBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-scriptsBox.TextColor3 = Color3.new(0, 0, 0)
-scriptsBox.Text = "Scripts: 420"
-scriptsBox.Parent = contentFrame
-
--- 7. Scripts List
-local scriptList = {"Glitcher", "Knife", "Krystal Dance", "Link Between Worlds", "2008 anims (remake)", "Fent Zombie", "Killbot V2 (remake)", "--- Hat Drop Scripts ---", "Float", "Fling"}
-local scriptMenu = Instance.new("ScrollingFrame")
-scriptMenu.Size = UDim2.new(0.9, 0, 0.45, 0)
-scriptMenu.Position = UDim2.new(0.05, 0, 0.4, 0)
-scriptMenu.CanvasSize = UDim2.new(0, 0, 2, 0)
-scriptMenu.Visible = true
-scriptMenu.BackgroundTransparency = 0.5
-scriptMenu.Parent = contentFrame
-
-local layout = Instance.new("UIListLayout")
-layout.Padding = UDim.new(0, 5)
-layout.Parent = scriptMenu
-
-for _, name in pairs(scriptList) do
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, 0, 0, 35)
-    btn.Text = name
-    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
-    btn.TextColor3 = Color3.new(1, 1, 1)
-    btn.Parent = scriptMenu
+LocalPlayer.Character:BreakJoints()
+LocalPlayer.Character=nil
+repeat task.wait() until LocalPlayer.Character
+Char = LocalPlayer.Character
+task.wait(.1)
+LocalPlayer.Character:BreakJoints()
+       
+LocalPlayer.CharacterAdded:Connect(function(c)
+Char = c
+function waitForChild(parent, childName)
+local child = parent:FindFirstChild(childName)
+if child then return child end
+while true do
+child = parent.ChildAdded:Wait()
+if child.Name == childName then return child end
+end
 end
 
--- 8. Tool Logic (Equip to Show, Unequip to Hide)
-tool.Equipped:Connect(function()
-    screenGui.Enabled = true
-end)
+waitForChild(Char, "Animate").Disabled = true
 
-tool.Unequipped:Connect(function()
-    screenGui.Enabled = false
-end)
+task.wait(1)
 
-unlockBtn.MouseButton1Click:Connect(function()
-    lockScreen.Visible = false
-    contentFrame.Visible = true
-end)
+-- ANIMATION
 
-print("RiptideHub Script Executed: Tool added to inventory.")
+-- declarations
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Figure = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local Torso = waitForChild(Figure, "Torso")
+local RightShoulder = waitForChild(Torso, "Right Shoulder")
+local LeftShoulder = waitForChild(Torso, "Left Shoulder")
+local RightHip = waitForChild(Torso, "Right Hip")
+local LeftHip = waitForChild(Torso, "Left Hip")
+local Neck = waitForChild(Torso, "Neck")
+local Humanoid = waitForChild(Figure, "Humanoid")
+local pose = "Standing"
+
+local toolAnim = "None"
+local toolAnimTime = 0
+
+local jumpMaxLimbVelocity = 0.75
+
+-- functions
+
+function onRunning(speed)
+if speed>0 then
+pose = "Running"
+else
+pose = "Standing"
+end
+end
+
+function onDied()
+pose = "Dead"
+end
+
+function onJumping()
+pose = "Jumping"
+end
+
+function onClimbing()
+pose = "Climbing"
+end
+
+function onGettingUp()
+pose = "GettingUp"
+end
+
+function onFreeFall()
+pose = "FreeFall"
+end
+
+function onFallingDown()
+pose = "FallingDown"
+end
+
+function onSeated()
+pose = "Seated"
+end
+
+function onPlatformStanding()
+pose = "PlatformStanding"
+end
+
+function onSwimming(speed)
+if speed>0 then
+pose = "Climbing"
+else
+pose = "Running"
+end
+end
+
+function moveJump()
+RightShoulder.MaxVelocity = 0.5
+LeftShoulder.MaxVelocity = 0.5
+RightShoulder:SetDesiredAngle(3.14)
+LeftShoulder:SetDesiredAngle(-3.14)
+RightHip:SetDesiredAngle(0)
+LeftHip:SetDesiredAngle(0)
+end
+
+
+-- same as jump for now
+
+function moveFreeFall()
+RightShoulder.MaxVelocity = 0.5
+LeftShoulder.MaxVelocity = 0.5
+RightShoulder:SetDesiredAngle(3.14)
+LeftShoulder:SetDesiredAngle(-3.14)
+RightHip:SetDesiredAngle(0)
+LeftHip:SetDesiredAngle(0)
+end
+
+function moveSit()
+RightShoulder.MaxVelocity = 0.5
+LeftShoulder.MaxVelocity = 0.5
+RightShoulder:SetDesiredAngle(3.14 /2)
+LeftShoulder:SetDesiredAngle(-3.14 /2)
+RightHip:SetDesiredAngle(3.14 /2)
+LeftHip:SetDesiredAngle(-3.14 /2)
+end
+
+function getTool()
+for _, kid in ipairs(Figure:GetChildren()) do
+if kid.className == "Tool" then return kid end
+end
+return nil
+end
+
+function getToolAnim(tool)
+for _, c in ipairs(tool:GetChildren()) do
+if c.Name == "toolanim" and c.className == "StringValue" then
+return c
+end
+end
+return nil
+end
+
+function animateTool()
+
+if (toolAnim == "None") then
+RightShoulder:SetDesiredAngle(1.57)
+return
+end
+
+if (toolAnim == "Slash") then
+RightShoulder.MaxVelocity = 0.5
+RightShoulder:SetDesiredAngle(0)
+return
+end
+
+if (toolAnim == "Lunge") then
+RightShoulder.MaxVelocity = 0.5
+LeftShoulder.MaxVelocity = 0.5
+RightHip.MaxVelocity = 0.5
+LeftHip.MaxVelocity = 0.5
+RightShoulder:SetDesiredAngle(1.57)
+LeftShoulder:SetDesiredAngle(1.0)
+RightHip:SetDesiredAngle(1.57)
+LeftHip:SetDesiredAngle(1.0)
+return
+end
+end
+
+function move(time)
+local amplitude
+local frequency
+
+if (pose == "Jumping") then
+moveJump()
+return
+end
+
+if (pose == "FreeFall") then
+moveFreeFall()
+return
+end
+
+if (pose == "Seated") then
+moveSit()
+return
+end
+
+local climbFudge = 0
+
+if (pose == "Running") then
+RightShoulder.MaxVelocity = 0.08
+LeftShoulder.MaxVelocity = 0.08
+amplitude = 0.66
+frequency = 8
+elseif (pose == "Climbing") then
+RightShoulder.MaxVelocity = 0.4
+LeftShoulder.MaxVelocity = 0.4
+amplitude = 0.66
+frequency = 9
+climbFudge = 3.14
+else
+amplitude = 0.07
+frequency = 1
+end
+
+desiredAngle = amplitude * math.sin(time*frequency)
+
+RightShoulder:SetDesiredAngle(desiredAngle + climbFudge)
+LeftShoulder:SetDesiredAngle(desiredAngle - climbFudge)
+RightHip:SetDesiredAngle(-desiredAngle)
+LeftHip:SetDesiredAngle(-desiredAngle)
+
+
+local tool = getTool()
+
+if tool then
+
+animStringValueObject = getToolAnim(tool)
+
+if animStringValueObject then
+toolAnim = animStringValueObject.Value
+-- message recieved, delete StringValue
+animStringValueObject.Parent = nil
+toolAnimTime = time + .3
+end
+
+if time > toolAnimTime then
+toolAnimTime = 0
+toolAnim = "None"
+end
+
+animateTool()
+
+else
+toolAnim = "None"
+toolAnimTime = 0
+end
+end
+
+
+-- connect events
+
+Humanoid.Died:Connect(onDied)
+Humanoid.Running:Connect(onRunning)
+Humanoid.Jumping:Connect(onJumping)
+Humanoid.Climbing:Connect(onClimbing)
+Humanoid.GettingUp:Connect(onGettingUp)
+Humanoid.FreeFalling:Connect(onFreeFall)
+Humanoid.FallingDown:Connect(onFallingDown)
+Humanoid.Seated:Connect(onSeated)
+Humanoid.PlatformStanding:Connect(onPlatformStanding)
+Humanoid.Swimming:Connect(onSwimming)
+-- main program
+
+local runService = game:service("RunService");
+
+while Figure.Parent~=nil do
+local _, time = wait(0.1)
+move(time)
+end
+end)

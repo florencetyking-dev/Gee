@@ -1,78 +1,224 @@
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local Char2 = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-local h = Char2:FindFirstChildOfClass("Humanoid") or Char2:WaitForChild("Humanoid")
+-- [[ RIPTIDE WARE: ABSOLUTE MASTER REPOSITORY ]]
+-- OWNER: n_cryptix | VERSION: FINAL
 
-if h.RigType ~= Enum.HumanoidRigType.R6 then return end
+local player = game.Players.LocalPlayer
+local TS = game:GetService("TweenService")
+local Debris = game:GetService("Debris")
+local UIS = game:GetService("UserInputService")
 
-LocalPlayer.Character:BreakJoints()
-LocalPlayer.Character=nil
-repeat task.wait() until LocalPlayer.Character
-Char = LocalPlayer.Character
-task.wait(.1)
-LocalPlayer.Character:BreakJoints()
-       
-LocalPlayer.CharacterAdded:Connect(function(c)
-Char = c
-function waitForChild(parent, childName)
-local child = parent:FindFirstChild(childName)
-if child then return child end
-while true do
-child = parent.ChildAdded:Wait()
-if child.Name == childName then return child end
-end
-end
+-- [ LAYER 1: SCREEN GUI SETUP ]
+local sg = Instance.new("ScreenGui", player.PlayerGui)
+sg.Name, sg.IgnoreGuiInset, sg.ResetOnSpawn = "RiptideWare", true, false
+sg.ZIndexBehavior = Enum.ZIndexBehavior.Global
+sg.Enabled = false
 
-waitForChild(Char, "Animate").Disabled = true
+-- [ TOOL ACTIVATOR ]
+local tool = Instance.new("Tool", player.Backpack)
+tool.Name, tool.RequiresHandle = "Riptide Ware", false
+tool.Equipped:Connect(function() sg.Enabled = true end)
+tool.Unequipped:Connect(function() sg.Enabled = false end)
 
-task.wait(1)
+-- [ NOTIFICATION SYSTEM ]
+local function notify(text)
+    local nFrame = Instance.new("Frame", sg)
+    nFrame.Size, nFrame.Position = UDim2.new(0, 220, 0, 45), UDim2.new(0.5, -110, 1, 10)
+    nFrame.BackgroundColor3, nFrame.ZIndex = Color3.fromRGB(25, 25, 35), 500
+    Instance.new("UICorner", nFrame).CornerRadius = UDim.new(0, 8)
+    local ns = Instance.new("UIStroke", nFrame)
+    ns.Color, ns.Thickness = Color3.fromRGB(100, 100, 255), 2
 
--- ANIMATION
+    local nText = Instance.new("TextLabel", nFrame)
+    nText.Size, nText.Text, nText.BackgroundTransparency = UDim2.new(1,0,1,0), text, 1
+    nText.TextColor3, nText.Font, nText.TextSize = Color3.new(1,1,1), Enum.Font.GothamMedium, 14
 
--- declarations
-
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local Figure = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-local Torso = waitForChild(Figure, "Torso")
-local RightShoulder = waitForChild(Torso, "Right Shoulder")
-local LeftShoulder = waitForChild(Torso, "Left Shoulder")
-local RightHip = waitForChild(Torso, "Right Hip")
-local LeftHip = waitForChild(Torso, "Left Hip")
-local Neck = waitForChild(Torso, "Neck")
-local Humanoid = waitForChild(Figure, "Humanoid")
-local pose = "Standing"
-
-local toolAnim = "None"
-local toolAnimTime = 0
-
-local jumpMaxLimbVelocity = 0.75
-
--- functions
-
-function onRunning(speed)
-if speed>0 then
-pose = "Running"
-else
-pose = "Standing"
-end
+    TS:Create(nFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back), {Position = UDim2.new(0.5, -110, 0.85, 0)}):Play()
+    task.delay(3, function()
+        TS:Create(nFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back), {Position = UDim2.new(0.5, -110, 1, 10)}):Play()
+        Debris:AddItem(nFrame, 0.6)
+    end)
 end
 
-function onDied()
-pose = "Dead"
+-- [ LAYER 2: MAIN CONTAINER ]
+local main = Instance.new("Frame", sg)
+main.Name, main.ZIndex = "MainFrame", 1
+main.Size, main.Position, main.AnchorPoint = UDim2.new(0.6, 0, 0.6, 0), UDim2.new(0.5, 0, 0.5, 0), Vector2.new(0.5, 0.5)
+main.BackgroundColor3, main.ClipsDescendants = Color3.fromRGB(15, 15, 20), true
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 12)
+Instance.new("UIStroke", main).Color = Color3.fromRGB(45, 45, 60)
+local ar = Instance.new("UIAspectRatioConstraint", main)
+ar.AspectRatio = 1.5
+
+-- [ LAYER 3: BACKGROUND IMAGE ]
+local pageBg = Instance.new("ImageLabel", main)
+pageBg.Name, pageBg.ZIndex = "BackgroundLayer", 2
+pageBg.Size, pageBg.Position = UDim2.new(0.7, 0, 1, 0), UDim2.new(0.3, 0, 0, 0)
+pageBg.Image = "rbxassetid://8638932437"
+pageBg.ImageTransparency, pageBg.BackgroundTransparency = 0.88, 1
+pageBg.ScaleType = Enum.ScaleType.Crop
+
+-- [ LAYER 4: SIDEBAR NAVIGATION ]
+local sidebar = Instance.new("Frame", main)
+sidebar.Name, sidebar.ZIndex = "Sidebar", 10
+sidebar.Size, sidebar.BackgroundColor3 = UDim2.new(0.3, 0, 1, 0), Color3.fromRGB(22, 22, 32)
+Instance.new("UIStroke", sidebar).Color = Color3.fromRGB(45, 45, 60)
+
+-- USER ICON (Header)
+local iconBg = Instance.new("Frame", sidebar)
+iconBg.Size, iconBg.Position, iconBg.ZIndex = UDim2.new(0, 60, 0, 60), UDim2.new(0.5, -30, 0, 20), 11
+iconBg.BackgroundColor3, iconBg.ClipsDescendants = Color3.fromRGB(60, 60, 60), true
+Instance.new("UICorner", iconBg).CornerRadius = UDim.new(1, 0)
+local head = Instance.new("Frame", iconBg)
+head.Size, head.Position, head.BackgroundColor3, head.ZIndex = UDim2.new(0, 24, 0, 24), UDim2.new(0.5, -12, 0.15, 0), Color3.new(1, 1, 1), 12
+Instance.new("UICorner", head).CornerRadius = UDim.new(1, 0)
+local torso = Instance.new("Frame", iconBg)
+torso.Size, torso.Position, torso.BackgroundColor3, torso.ZIndex = UDim2.new(0, 44, 0, 44), UDim2.new(0.5, -22, 0.6, 0), Color3.new(1, 1, 1), 12
+Instance.new("UICorner", torso).CornerRadius = UDim.new(1, 0)
+
+-- [ LAYER 5: PAGES AREA ]
+local pages = Instance.new("Frame", main)
+pages.ZIndex, pages.Size, pages.Position, pages.BackgroundTransparency = 5, UDim2.new(0.7, 0, 1, 0), UDim2.new(0.3, 0, 0, 0), 1
+local scriptPage = Instance.new("ScrollingFrame", pages)
+scriptPage.Size, scriptPage.BackgroundTransparency, scriptPage.Visible = UDim2.new(1, 0, 1, 0), 1, true
+scriptPage.ZIndex, scriptPage.ScrollBarThickness = 6, 0
+Instance.new("UIListLayout", scriptPage).HorizontalAlignment = Enum.HorizontalAlignment.Center
+Instance.new("UIPadding", scriptPage).PaddingTop = UDim.new(0, 15)
+
+local creditPage = Instance.new("Frame", pages)
+creditPage.Size, creditPage.Visible, creditPage.BackgroundTransparency, creditPage.ZIndex = UDim2.new(1, 0, 1, 0), false, 1, 6
+local credT = Instance.new("TextLabel", creditPage)
+credT.Size, credT.Text, credT.TextColor3, credT.ZIndex = UDim2.new(1, 0, 1, 0), "Owner: n_cryptix", Color3.new(1,1,1), 7
+credT.Font, credT.TextSize, credT.BackgroundTransparency = Enum.Font.GothamBold, 22, 1
+
+-- NAVIGATION
+local function createNav(name, pos, callback)
+    local btn = Instance.new("TextButton", sidebar)
+    btn.Text, btn.Size, btn.Position, btn.ZIndex = name, UDim2.new(0.8, 0, 0, 35), UDim2.new(0.1, 0, 0, pos), 11
+    btn.BackgroundColor3, btn.TextColor3, btn.Font = Color3.fromRGB(35, 35, 50), Color3.new(1,1,1), Enum.Font.GothamBold
+    Instance.new("UICorner", btn)
+    btn.MouseButton1Click:Connect(callback)
+end
+createNav("SCRIPTS", 100, function() scriptPage.Visible, creditPage.Visible = true, false end)
+createNav("CREDITS", 145, function() scriptPage.Visible, creditPage.Visible = false, true end)
+
+-- [ LAYER 6: BUTTON CONSTRUCTOR ]
+local function addScript(name, callback)
+    local btn = Instance.new("TextButton", scriptPage)
+    btn.Size, btn.BackgroundColor3, btn.ZIndex = UDim2.new(0.9, 0, 0, 42), Color3.fromRGB(20, 20, 35), 7
+    btn.Text, btn.TextColor3, btn.Font = "  " .. name, Color3.new(1, 1, 1), Enum.Font.GothamMedium
+    btn.TextXAlignment = Enum.TextXAlignment.Left
+    Instance.new("UICorner", btn)
+    Instance.new("UIStroke", btn).Color = Color3.fromRGB(100, 100, 255)
+    btn.MouseButton1Click:Connect(callback)
 end
 
-function onJumping()
-pose = "Jumping"
-end
+-- [[ THE SCRIPTS LOAD ]]
 
-function onClimbing()
-pose = "Climbing"
-end
+addScript("Cat Anims R15", function()
+    notify("Cat Anims Loading...")
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ReliefScript/cat-animation-cracked/refs/heads/main/loader.lua"))()
+end)
 
-function onGettingUp()
-pose = "GettingUp"
-end
+addScript("FE KJ Anim (Clientside)", function()
+    game:GetService("StarterGui"):SetCore("SendNotification", { Title = "Limb Reanim V2"; Text = "ENJOY!"; Icon = "rbxthumb://type=Asset&id=13775452736&w=150&h=150"})
+    
+    local settings = _G
+    settings["Use default animations"] = true
+    settings["Fake character transparency level"] = 1
+    settings["Disable character scripts"] = true
+    settings["Fake character should collide"] = true
+    settings["Parent real character to fake character"] = false
+    settings["Respawn character"] = true
+    settings["Instant respawn"] = false
+    settings["Hide HumanoidRootPart"] = false
+    settings["PermaDeath fake character"] = false
+    settings["Names to exclude from transparency"] = {}
+    
+    (function() if getgenv then return getgenv() else return _G end end)().fling = nil
+    
+    task.spawn(function()
+        loadstring(game:HttpGet("https://gist.githubusercontent.com/lolidkwhy678/1f92d0894e3304be9882126819d54a6d/raw/bd10c958192386ea7db0f8711c865f6fb7faf8c1/CA%2520testing"))()
+        loadstring(game:HttpGet("https://gist.githubusercontent.com/gObl00x/c37c69e9b91bc7a9f34497769fa09901/raw/038cee818d09f941d1d22552aa374ce1500c1456/Universal%2520KJ%2520Full%2520Moveset%2520Clientsided"))()
+    end)
+    notify("KJ Moveset Loaded")
+end)
+
+addScript("FE Banisher", function()
+    notify("Banisher (Hats Needed)")
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Banisher"))()
+end)
+
+addScript("FE Motorcycle", function()
+    notify("Motorcycle (Hats Needed)")
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Motorcycle"))()
+end)
+
+addScript("Coolkidd Anims", function() loadstring(game:HttpGet("https://raw.githubusercontent.com"))() end)
+addScript("Killbot V2", function() loadstring(game:HttpGet("https://raw.githubusercontent.com"))() end)
+
+-- [[ LOCK SCREEN ]]
+local lock = Instance.new("Frame", main)
+lock.Name, lock.Size, lock.ZIndex = "LockScreen", UDim2.new(1, 0, 1, 0), 100
+lock.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
+
+local clockText = Instance.new("TextLabel", lock)
+clockText.Size, clockText.Position, clockText.ZIndex = UDim2.new(1, 0, 0.2, 0), UDim2.new(0, 0, 0.05, 0), 101
+clockText.TextColor3, clockText.Font, clockText.TextSize, clockText.BackgroundTransparency = Color3.new(1, 1, 1), Enum.Font.GothamMedium, 32, 1
+
+local spinFrame = Instance.new("Frame", lock)
+spinFrame.Size, spinFrame.Position, spinFrame.AnchorPoint, spinFrame.ZIndex = UDim2.new(0.4, 0, 0.4, 0), UDim2.new(0.5, 0, 0.45, 0), Vector2.new(0.5, 0.5), 101
+spinFrame.BackgroundTransparency = 1
+local emblem = Instance.new("ImageLabel", spinFrame)
+emblem.Size, emblem.Position, emblem.AnchorPoint, emblem.ZIndex = UDim2.new(0.6, 0, 0.6, 0), UDim2.new(0.5, 0, 0.5, 0), Vector2.new(0.5, 0.5), 102
+emblem.Image, emblem.BackgroundTransparency = "rbxassetid://10811804245", 1
+
+local topTxt = Instance.new("TextLabel", spinFrame)
+topTxt.Size, topTxt.Position, topTxt.AnchorPoint, topTxt.Text = UDim2.new(1.5, 0, 0.3, 0), UDim2.new(0.5, 0, -0.1, 0), Vector2.new(0.5, 0.5), "R I P T I D E"
+topTxt.Font, topTxt.TextColor3, topTxt.ZIndex = Enum.Font.GothamBold, Color3.fromRGB(100, 100, 255), 103
+topTxt.BackgroundTransparency = 1
+
+local botTxt = Instance.new("TextLabel", spinFrame)
+botTxt.Size, botTxt.Position, botTxt.AnchorPoint, botTxt.Text = UDim2.new(1.5, 0, 0.3, 0), UDim2.new(0.5, 0, 1.1, 0), Vector2.new(0.5, 0.5), "W A R E"
+botTxt.Font, botTxt.TextColor3, botTxt.ZIndex = Enum.Font.GothamBold, Color3.fromRGB(100, 100, 255), 103
+botTxt.BackgroundTransparency = 1
+
+task.spawn(function()
+    while lock and lock.Parent do
+        clockText.Text = os.date("%H:%M:%S")
+        spinFrame.Rotation += 1.5
+        emblem.Rotation -= 0.5
+        task.wait(0.01)
+    end
+end)
+
+-- SLIDER
+local sliderH = Instance.new("Frame", lock)
+sliderH.Size, sliderH.Position, sliderH.ZIndex = UDim2.new(0.7, 0, 0.12, 0), UDim2.new(0.15, 0, 0.82, 0), 101
+sliderH.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+Instance.new("UICorner", sliderH)
+local sButton = Instance.new("TextButton", sliderH)
+sButton.Size, sButton.ZIndex, sButton.BackgroundColor3 = UDim2.new(0.25, 0, 1, 0), 105, Color3.fromRGB(100, 100, 255)
+sButton.Text = ""
+Instance.new("UICorner", sButton)
+
+local sliding = false
+sButton.MouseButton1Down:Connect(function() sliding = true end)
+UIS.InputEnded:Connect(function(i) 
+    if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then 
+        if sButton.Position.X.Scale < 0.7 then TS:Create(sButton, TweenInfo.new(0.3), {Position = UDim2.new(0, 0, 0, 0)}):Play() end
+        sliding = false 
+    end 
+end)
+UIS.InputChanged:Connect(function(i)
+    if sliding and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+        local p = math.clamp((i.Position.X - sliderH.AbsolutePosition.X) / sliderH.AbsoluteSize.X, 0, 0.75)
+        sButton.Position = UDim2.new(p, 0, 0, 0)
+        if p >= 0.7 then
+            sliding = false
+            TS:Create(lock, TweenInfo.new(0.8, Enum.EasingStyle.Quint), {Position = UDim2.new(0, 0, -1.2, 0)}):Play()
+            task.wait(0.8) lock.Visible = false
+        end
+    end
+end)
 
 function onFreeFall()
 pose = "FreeFall"

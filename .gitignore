@@ -62,7 +62,6 @@ sidebar.Name, sidebar.ZIndex = "Sidebar", 10
 sidebar.Size, sidebar.BackgroundColor3 = UDim2.new(0.3, 0, 1, 0), Color3.fromRGB(22, 22, 32)
 Instance.new("UIStroke", sidebar).Color = Color3.fromRGB(45, 45, 60)
 
--- USER ICON (Header)
 local iconBg = Instance.new("Frame", sidebar)
 iconBg.Size, iconBg.Position, iconBg.ZIndex = UDim2.new(0, 60, 0, 60), UDim2.new(0.5, -30, 0, 20), 11
 iconBg.BackgroundColor3, iconBg.ClipsDescendants = Color3.fromRGB(60, 60, 60), true
@@ -80,6 +79,7 @@ pages.ZIndex, pages.Size, pages.Position, pages.BackgroundTransparency = 5, UDim
 local scriptPage = Instance.new("ScrollingFrame", pages)
 scriptPage.Size, scriptPage.BackgroundTransparency, scriptPage.Visible = UDim2.new(1, 0, 1, 0), 1, true
 scriptPage.ZIndex, scriptPage.ScrollBarThickness = 6, 0
+scriptPage.AutomaticCanvasSize = Enum.AutomaticSize.Y
 Instance.new("UIListLayout", scriptPage).HorizontalAlignment = Enum.HorizontalAlignment.Center
 Instance.new("UIPadding", scriptPage).PaddingTop = UDim.new(0, 15)
 
@@ -120,26 +120,61 @@ end)
 
 addScript("FE KJ Anim (Clientside)", function()
     game:GetService("StarterGui"):SetCore("SendNotification", { Title = "Limb Reanim V2"; Text = "ENJOY!"; Icon = "rbxthumb://type=Asset&id=13775452736&w=150&h=150"})
-    
-    local settings = _G
-    settings["Use default animations"] = true
-    settings["Fake character transparency level"] = 1
-    settings["Disable character scripts"] = true
-    settings["Fake character should collide"] = true
-    settings["Parent real character to fake character"] = false
-    settings["Respawn character"] = true
-    settings["Instant respawn"] = false
-    settings["Hide HumanoidRootPart"] = false
-    settings["PermaDeath fake character"] = false
-    settings["Names to exclude from transparency"] = {}
-    
-    (function() if getgenv then return getgenv() else return _G end end)().fling = nil
-    
     task.spawn(function()
         loadstring(game:HttpGet("https://gist.githubusercontent.com/lolidkwhy678/1f92d0894e3304be9882126819d54a6d/raw/bd10c958192386ea7db0f8711c865f6fb7faf8c1/CA%2520testing"))()
         loadstring(game:HttpGet("https://gist.githubusercontent.com/gObl00x/c37c69e9b91bc7a9f34497769fa09901/raw/038cee818d09f941d1d22552aa374ce1500c1456/Universal%2520KJ%2520Full%2520Moveset%2520Clientsided"))()
     end)
     notify("KJ Moveset Loaded")
+end)
+
+addScript("Madara Moveset", function()
+    notify("Madara Loading...")
+    loadstring(game:HttpGet("https://raw.githubusercontent.com"))()
+end)
+
+addScript("Krypton Reanim", function()
+    notify("Krypton Loading...")
+    loadstring(game:HttpGet("https://raw.githubusercontent.com"))()
+end)
+
+addScript("Made In Heaven", function()
+    notify("Resetting the Universe...")
+    loadstring(game:HttpGet("https://pastebin.com"))()
+end)
+
+addScript("King Crimson", function()
+    notify("Erasing Time...")
+    loadstring(game:HttpGet("https://pastebin.com"))()
+end)
+
+addScript("Coolkidd Anims R15", function()
+    notify("Coolkidd Loading...")
+    loadstring(game:HttpGet("https://raw.githubusercontent.com"))()
+end)
+
+addScript("Killbot V2", function()
+    notify("Killbot V2 Online...")
+    loadstring(game:HttpGet("https://raw.githubusercontent.com"))()
+end)
+
+addScript("The Angel", function()
+    notify("The Angel Loading...")
+    loadstring(game:HttpGet("https://raw.githubusercontent.com"))()
+end)
+
+addScript("Noli Reanimate", function()
+    notify("Noli Reanim Loading...")
+    loadstring(game:HttpGet("https://raw.githubusercontent.com"))()
+end)
+
+addScript("Krystal Dance", function()
+    notify("Krystal Loading...")
+    loadstring(game:HttpGet("https://raw.githubusercontent.com"))()
+end)
+
+addScript("Invincible Flight", function()
+    notify("Flight Initialized")
+    loadstring(game:HttpGet("https://raw.githubusercontent.com"))()
 end)
 
 addScript("FE Banisher", function()
@@ -152,8 +187,10 @@ addScript("FE Motorcycle", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Motorcycle"))()
 end)
 
-addScript("Coolkidd Anims", function() loadstring(game:HttpGet("https://raw.githubusercontent.com"))() end)
-addScript("Killbot V2", function() loadstring(game:HttpGet("https://raw.githubusercontent.com"))() end)
+addScript("R15 Anim List", function()
+    notify("Fetching R15 Catalog...")
+    loadstring(game:HttpGet('https://raw.githubusercontent.com'))()
+end)
 
 -- [[ LOCK SCREEN ]]
 local lock = Instance.new("Frame", main)
@@ -218,194 +255,4 @@ UIS.InputChanged:Connect(function(i)
             task.wait(0.8) lock.Visible = false
         end
     end
-end)
-
-function onFreeFall()
-pose = "FreeFall"
-end
-
-function onFallingDown()
-pose = "FallingDown"
-end
-
-function onSeated()
-pose = "Seated"
-end
-
-function onPlatformStanding()
-pose = "PlatformStanding"
-end
-
-function onSwimming(speed)
-if speed>0 then
-pose = "Climbing"
-else
-pose = "Running"
-end
-end
-
-function moveJump()
-RightShoulder.MaxVelocity = 0.5
-LeftShoulder.MaxVelocity = 0.5
-RightShoulder:SetDesiredAngle(3.14)
-LeftShoulder:SetDesiredAngle(-3.14)
-RightHip:SetDesiredAngle(0)
-LeftHip:SetDesiredAngle(0)
-end
-
-
--- same as jump for now
-
-function moveFreeFall()
-RightShoulder.MaxVelocity = 0.5
-LeftShoulder.MaxVelocity = 0.5
-RightShoulder:SetDesiredAngle(3.14)
-LeftShoulder:SetDesiredAngle(-3.14)
-RightHip:SetDesiredAngle(0)
-LeftHip:SetDesiredAngle(0)
-end
-
-function moveSit()
-RightShoulder.MaxVelocity = 0.5
-LeftShoulder.MaxVelocity = 0.5
-RightShoulder:SetDesiredAngle(3.14 /2)
-LeftShoulder:SetDesiredAngle(-3.14 /2)
-RightHip:SetDesiredAngle(3.14 /2)
-LeftHip:SetDesiredAngle(-3.14 /2)
-end
-
-function getTool()
-for _, kid in ipairs(Figure:GetChildren()) do
-if kid.className == "Tool" then return kid end
-end
-return nil
-end
-
-function getToolAnim(tool)
-for _, c in ipairs(tool:GetChildren()) do
-if c.Name == "toolanim" and c.className == "StringValue" then
-return c
-end
-end
-return nil
-end
-
-function animateTool()
-
-if (toolAnim == "None") then
-RightShoulder:SetDesiredAngle(1.57)
-return
-end
-
-if (toolAnim == "Slash") then
-RightShoulder.MaxVelocity = 0.5
-RightShoulder:SetDesiredAngle(0)
-return
-end
-
-if (toolAnim == "Lunge") then
-RightShoulder.MaxVelocity = 0.5
-LeftShoulder.MaxVelocity = 0.5
-RightHip.MaxVelocity = 0.5
-LeftHip.MaxVelocity = 0.5
-RightShoulder:SetDesiredAngle(1.57)
-LeftShoulder:SetDesiredAngle(1.0)
-RightHip:SetDesiredAngle(1.57)
-LeftHip:SetDesiredAngle(1.0)
-return
-end
-end
-
-function move(time)
-local amplitude
-local frequency
-
-if (pose == "Jumping") then
-moveJump()
-return
-end
-
-if (pose == "FreeFall") then
-moveFreeFall()
-return
-end
-
-if (pose == "Seated") then
-moveSit()
-return
-end
-
-local climbFudge = 0
-
-if (pose == "Running") then
-RightShoulder.MaxVelocity = 0.08
-LeftShoulder.MaxVelocity = 0.08
-amplitude = 0.66
-frequency = 8
-elseif (pose == "Climbing") then
-RightShoulder.MaxVelocity = 0.4
-LeftShoulder.MaxVelocity = 0.4
-amplitude = 0.66
-frequency = 9
-climbFudge = 3.14
-else
-amplitude = 0.07
-frequency = 1
-end
-
-desiredAngle = amplitude * math.sin(time*frequency)
-
-RightShoulder:SetDesiredAngle(desiredAngle + climbFudge)
-LeftShoulder:SetDesiredAngle(desiredAngle - climbFudge)
-RightHip:SetDesiredAngle(-desiredAngle)
-LeftHip:SetDesiredAngle(-desiredAngle)
-
-
-local tool = getTool()
-
-if tool then
-
-animStringValueObject = getToolAnim(tool)
-
-if animStringValueObject then
-toolAnim = animStringValueObject.Value
--- message recieved, delete StringValue
-animStringValueObject.Parent = nil
-toolAnimTime = time + .3
-end
-
-if time > toolAnimTime then
-toolAnimTime = 0
-toolAnim = "None"
-end
-
-animateTool()
-
-else
-toolAnim = "None"
-toolAnimTime = 0
-end
-end
-
-
--- connect events
-
-Humanoid.Died:Connect(onDied)
-Humanoid.Running:Connect(onRunning)
-Humanoid.Jumping:Connect(onJumping)
-Humanoid.Climbing:Connect(onClimbing)
-Humanoid.GettingUp:Connect(onGettingUp)
-Humanoid.FreeFalling:Connect(onFreeFall)
-Humanoid.FallingDown:Connect(onFallingDown)
-Humanoid.Seated:Connect(onSeated)
-Humanoid.PlatformStanding:Connect(onPlatformStanding)
-Humanoid.Swimming:Connect(onSwimming)
--- main program
-
-local runService = game:service("RunService");
-
-while Figure.Parent~=nil do
-local _, time = wait(0.1)
-move(time)
-end
 end)

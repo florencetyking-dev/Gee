@@ -1,272 +1,68 @@
-local Library = {}
-
--- [[ CORE SERVICES ]]
-local CoreGui = game:GetService("CoreGui")
-local RunService = game:GetService("RunService")
-local HttpService = game:GetService("HttpService")
-local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
+-- [[ TIDE HUB: INVENTORY TOOL VERSION ]]
 local Players = game:GetService("Players")
-
 local Player = Players.LocalPlayer
-local RobloxGui = CoreGui:WaitForChild("RobloxGui")
-local SettingsShield = RobloxGui:WaitForChild("SettingsShield"):WaitForChild("SettingsShield")
-local MenuContainer = SettingsShield:WaitForChild("MenuContainer")
-local PageViewInnerFrame = MenuContainer:WaitForChild("PageViewClipper"):WaitForChild("PageView"):WaitForChild("PageViewInnerFrame")
-local HubBar = MenuContainer:WaitForChild("HubBar")
-if HubBar:FindFirstChild("HubBarContainer") then HubBar = HubBar.HubBarContainer end
-
+local Backpack = Player:WaitForChild("Backpack")
 local TideVersion = "1.0.5 BETA"
-local getcustomasset = getsynasset or getcustomasset
 
--- [[ UTILITIES ]]
-local Util = {}
-Util.Instance = function(cl, p)
-	local i = Instance.new(cl)
-	i.Name = HttpService:GenerateGUID(false)
-	i.Parent = p
-	return i
-end
+-- [[ 1. CREATE THE TOOL ]]
+local TideTool = Instance.new("Tool")
+TideTool.Name = "Tide Hub"
+TideTool.RequiresHandle = false
+TideTool.TextureId = "rbxassetid://12523447385" -- Custom Tide Icon
+TideTool.Parent = Backpack
 
--- [[ PIXEL FONT RENDERER ]]
-Util.MakeText = function(text)
-	text = text:upper()
-	local ls = "BCDEIKOPQRSTUVYZ\\_`N^MJ"
-	local lt = ""
-	lt ..= "DDDDD@DFF@@@@@FSFSFSF@@@@@@@@@@@@@@EMMUKKTDD@@@@@DEEEEEDDBBBBBD@@@@@@@@@@@@@@@@@@@DE@@@G@@@@@@@@@DABBDEEI"
-	lt ..= "GJJJJJGDVDDDDSGJAGIISRAAGAARWJJSAAASIIRAARGIIRJJGSAABBDDGJJGJJGGJJHAAG"
-	lt ..= "@DD@DD@@DD@DE@@BDEDB@@@G@G@@@EDBDE@GJABD@D@@@@@@@"
-	lt ..= "DFJSJJJRJJRJJRGJIIIJGRJJJJJRSIIRIISSIIRIIIHIILJJHJJJSJJJGDDDDDGAAAAAJHJKMOMKJIIIIIISJQNJJJJJJPNLJJGJJJJJGRJJRIIIGJJJNGCRJJRMKJGJIGAJGSDDDDDDJJJJJJGJJJJJFDJJJNQJJJJFDFJJJJFDDDDSABDEIS"
-	local pixs = {}
-	local totalsize = 0
-	for i=0, 6 do
-		local row = {}
-		for j=1, text:len() do
-			local c = text:byte(j, j)
-			local w = 0
-			if c ~= 0x20 then
-				local k = (c - 33) * 7 + i
-				w = lt:byte(k + 1, k + 1)
-				if w ~= nil and w > 64 then
-					w = ls:byte(w - 64, w - 64) - 65
-				else w = 0 end
-			end
-			for k=0, 5 do
-				local h = (j - 1) * 6 + (4 - k)
-				totalsize = math.max(totalsize, h + 1)
-				local p = (w // math.pow(2, k)) % 2
-				if p > 0 then row[h] = true end
-			end
-		end
-		pixs[i] = row
-	end
-	local pivot = Util.Instance("Frame")
-	pivot.AnchorPoint = Vector2.new(0.5, 0.5)
-	pivot.BackgroundTransparency = 1
-	pivot.Size = UDim2.new(0, totalsize * 3, 0, 21)
-	for i=0, 6 do
-		local row = pixs[i]
-		for j=0, totalsize - 1 do
-			if row[j] then
-				local p = Util.Instance("Frame", pivot)
-				p.Position = UDim2.new(j / totalsize, 0, i / 7, 0)
-				p.Size = UDim2.new(1 / totalsize, 0, 1 / 7, 0)
-				p.BorderSizePixel = 0
-                p.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
-			end
-		end
-	end
-	return pivot
-end
+-- [[ 2. UI SETUP (Hidden by default) ]]
+local ScreenGui = Instance.new("ScreenGui", Player:WaitForChild("PlayerGui"))
+ScreenGui.Name = "TideUI"
+ScreenGui.Enabled = false
+ScreenGui.ResetOnSpawn = false
 
--- [[ SOUND SYSTEM ]]
-local UISound = {
-    Click = Instance.new("Sound", CoreGui),
-    Music = Instance.new("Sound", CoreGui)
-}
-UISound.Click.SoundId = "rbxassetid://12222242"
-UISound.Music.Volume = 0.5
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 300, 0, 400)
+MainFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.BorderSizePixel = 0
+Instance.new("UICorner", MainFrame)
 
-local _clicksndclicked = false
-local function _registerclicksnd(v)
-    if v:IsA("GuiObject") and not v:GetAttribute("ClickSnd") then
-        v:SetAttribute("ClickSnd", true)
-        v.InputBegan:Connect(function(input)
-            if not _clicksndclicked and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
-                UISound.Click:Play()
-                _clicksndclicked = true
-            end
-        end)
-    end
-end
-UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        _clicksndclicked = false
-    end
+-- [[ 3. PIXEL TITLE ]]
+local Title = Instance.new("TextLabel", MainFrame)
+Title.Size = UDim2.new(1, 0, 0, 50)
+Title.Text = "TIDE HUB"
+Title.TextColor3 = Color3.fromRGB(0, 200, 255)
+Title.Font = Enum.Font.Code
+Title.TextSize = 25
+Title.BackgroundTransparency = 1
+
+-- [[ 4. TOOL LOGIC (Toggle UI on Equip) ]]
+TideTool.Equipped:Connect(function()
+    ScreenGui.Enabled = true -- Opens menu when you select the tool
 end)
 
--- [[ LIBRARY SECTIONS ]]
-local Sections = {["Help"] = {"Help", "HelpTab"}}
+TideTool.Unequipped:Connect(function()
+    ScreenGui.Enabled = false -- Closes menu when you deselect
+end)
 
-function Library.Section(Sectione)
-    local Section = {}
-    local Frame = Instance.new("ScrollingFrame", PageViewInnerFrame)
-    Frame.Visible = false
-    Frame.Name = "CustomTab"
-    Frame.BackgroundTransparency = 1
-    Frame.Size = UDim2.new(1, 0, 1, 0)
-    Frame.CanvasSize = UDim2.new(0, 0, 2, 0)
-    Frame.ScrollBarThickness = 2
-
-    local UIList = Instance.new("UIListLayout", Frame)
-    UIList.HorizontalAlignment = "Center"
-    UIList.Padding = UDim.new(0, 10)
-
-    RunService.Heartbeat:Connect(function()
-        if Frame.Parent then
-            local Target = PageViewInnerFrame:FindFirstChild(Sections[Sectione][1])
-            if Target then
-                for _, v in pairs(Target:GetChildren()) do
-                    if v ~= Frame then pcall(function() v.Visible = false end) end
-                end
-                Frame.Parent = Target
-                Frame.Visible = Target.Visible
-            end
-        end
-    end)
-
-    -- [[ ANIMATED SWITCH ]]
-    Section.Switch = function(Text, Default, Callback)
-        local Debounce = os.clock()
-        local SwitchFrame = Util.Instance("ImageButton", Frame)
-        SwitchFrame.Size = UDim2.new(0.9, 0, 0, 50)
-        SwitchFrame.BackgroundTransparency = 1
-        SwitchFrame.Image = "rbxasset://textures/ui/VR/rectBackgroundWhite.png"
-        SwitchFrame.ImageColor3 = Color3.fromRGB(30, 30, 30)
-        SwitchFrame.ImageTransparency = 0.5
-        Instance.new("UICorner", SwitchFrame)
-
-        local Label = Instance.new("TextLabel", SwitchFrame)
-        Label.Text = "  " .. Text
-        Label.Size = UDim2.new(0.5, 0, 1, 0)
-        Label.TextColor3 = Color3.new(1,1,1)
-        Label.Font = Enum.Font.SourceSansBold
-        Label.TextSize = 22
-        Label.BackgroundTransparency = 1
-        Label.TextXAlignment = "Left"
-
-        local Selection1 = Instance.new("TextLabel", SwitchFrame)
-        Selection1.Text = "ON"
-        Selection1.Position = UDim2.new(0.6, 0, 0, 0)
-        Selection1.Size = UDim2.new(0.3, 0, 1, 0)
-        Selection1.TextColor3 = Color3.fromRGB(0, 200, 255)
-        Selection1.BackgroundTransparency = 1
-        Selection1.Visible = Default
-
-        local Selection2 = Instance.new("TextLabel", SwitchFrame)
-        Selection2.Text = "OFF"
-        Selection2.Position = UDim2.new(0.6, 0, 0, 0)
-        Selection2.Size = UDim2.new(0.3, 0, 1, 0)
-        Selection2.TextColor3 = Color3.fromRGB(255, 100, 100)
-        Selection2.BackgroundTransparency = 1
-        Selection2.Visible = not Default
-
-        SwitchFrame.MouseButton1Down:Connect(function()
-            if Debounce + 0.1 > os.clock() then return end
-            Default = not Default
-            local Visible = Default and Selection1 or Selection2
-            local Hidden = Default and Selection2 or Selection1
-
-            Hidden:TweenPosition(UDim2.new(0.55, 0, 0, 0), "Out", "Sine", 0.2)
-            TweenService:Create(Hidden, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
-            
-            Callback(Default)
-
-            Visible.Position = UDim2.new(0.65, 0, 0, 0)
-            Visible.Visible = true
-            Visible.TextTransparency = 1
-            TweenService:Create(Visible, TweenInfo.new(0.2), {TextTransparency = 0}):Play()
-            Visible:TweenPosition(UDim2.new(0.6, 0, 0, 0), "Out", "Sine", 0.2)
-            
-            task.wait(0.2)
-            Hidden.Visible = false
-            Debounce = os.clock()
-        end)
-    end
-
-    -- [[ STEP SLIDER ]]
-    Section.Slider = function(Text, Default, Minimum, Maximum, Callback)
-        local SliderFrame = Util.Instance("ImageButton", Frame)
-        SliderFrame.Size = UDim2.new(0.9, 0, 0, 50)
-        SliderFrame.BackgroundTransparency = 0.8
-        SliderFrame.BackgroundColor3 = Color3.new(0,0,0)
-        Instance.new("UICorner", SliderFrame)
-
-        local Label = Instance.new("TextLabel", SliderFrame)
-        Label.Text = "  " .. Text
-        Label.Size = UDim2.new(0.4, 0, 1, 0)
-        Label.TextColor3 = Color3.new(1,1,1)
-        Label.Font = Enum.Font.SourceSansBold
-        Label.TextSize = 20
-        Label.BackgroundTransparency = 1
-        Label.TextXAlignment = "Left"
-
-        local StepsContainer = Instance.new("Frame", SliderFrame)
-        StepsContainer.Size = UDim2.new(0.5, 0, 0.4, 0)
-        StepsContainer.Position = UDim2.new(0.45, 0, 0.3, 0)
-        StepsContainer.BackgroundTransparency = 1
-
-        local Steps = {}
-        for i = 1, 10 do
-            local Step = Instance.new("Frame", StepsContainer)
-            Step.Size = UDim2.new(0.1, -2, 1, 0)
-            Step.Position = UDim2.new(0.1 * (i-1), 0, 0, 0)
-            Step.BackgroundColor3 = i > (Default/Maximum)*10 and Color3.fromRGB(78, 84, 96) or Color3.fromRGB(0, 162, 255)
-            Steps[i] = Step
-        end
-
-        SliderFrame.MouseButton1Down:Connect(function()
-            local mousePos = UserInputService:GetMouseLocation().X
-            local relPos = math.clamp((mousePos - StepsContainer.AbsolutePosition.X) / StepsContainer.AbsoluteSize.X, 0, 1)
-            local stepVal = math.round(relPos * 10)
-            for i = 1, 10 do
-                Steps[i].BackgroundColor3 = i > stepVal and Color3.fromRGB(78, 84, 96) or Color3.fromRGB(0, 162, 255)
-            end
-            Callback(Minimum + (Maximum - Minimum) * (stepVal / 10))
-        end)
-    end
-
-    return Section, Frame
+-- [[ 5. FUNCTIONAL BUTTONS ]]
+local function CreateBtn(txt, yPos, callback)
+    local b = Instance.new("TextButton", MainFrame)
+    b.Size = UDim2.new(0.8, 0, 0, 40)
+    b.Position = UDim2.new(0.1, 0, 0, yPos)
+    b.Text = txt
+    b.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    b.TextColor3 = Color3.new(1, 1, 1)
+    b.Font = Enum.Font.SourceSansBold
+    Instance.new("UICorner", b)
+    b.MouseButton1Click:Connect(callback)
 end
 
--- [[ TIDE HUB INITIALIZATION ]]
-function Library.Init()
-    local Tide, MainFrame = Library.Section("Help")
+CreateBtn("SPEED HACK", 100, function() 
+    Player.Character.Humanoid.WalkSpeed = 100 
+end)
 
-    -- Pixel Header
-    local Header = Util.MakeText("TIDE HUB")
-    Header.Parent = MainFrame
+CreateBtn("RESET SPEED", 150, function() 
+    Player.Character.Humanoid.WalkSpeed = 16 
+end)
 
-    -- Info
-    local Info = Instance.new("TextLabel", MainFrame)
-    Info.Size = UDim2.new(0.9, 0, 0, 60)
-    Info.Text = "Code: cryptix\nGFX: cryptix / AALib"
-    Info.TextColor3 = Color3.fromRGB(0, 200, 255)
-    Info.BackgroundTransparency = 0.9
-    Info.BackgroundColor3 = Color3.new(1,1,1)
-    Info.Font = Enum.Font.Code
-    Info.TextSize = 16
-    Instance.new("UICorner", Info)
-
-    -- Examples
-    Tide.Switch("Speed Hack", false, function(v) print("Speed set to:", v) end)
-    Tide.Slider("WalkSpeed", 16, 16, 100, function(v) 
-        if Player.Character and Player.Character:FindFirstChild("Humanoid") then
-            Player.Character.Humanoid.WalkSpeed = v
-        end
-    end)
-
-    MainFrame.DescendantAdded:Connect(_registerclicksnd)
-end
-
-Library.Init()
+CreateBtn("CLOSE HUB", 330, function()
+    ScreenGui.Enabled = false
+end)

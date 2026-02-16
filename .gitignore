@@ -1,83 +1,101 @@
-function Library.WindowsTab()
-    local WinTab = Library.Section("Help") -- Hijacks the Help tab for this view
-    WinTab.Title("Windows")
+function Library.AddWindowsTab()
+    -- Hijacks the Help section as requested
+    local WinSection = Library.Section("Help")
+    WinSection.Title("Windows 11")
+    
+    -- We need to find the specific Help view frame to parent our custom overlay
+    local SectionView = PageViewInnerFrame:FindFirstChild("Help")
+    if not SectionView then return end
 
-    -- Main Container
-    local Container = Instance.new("Frame", PageViewInnerFrame:FindFirstChild("Help"))
-    Container.Size = UDim2.new(1, 0, 1, 0)
-    Container.BackgroundTransparency = 1
-    Container.Name = "WindowsContainer"
+    -- Custom UI Container
+    local MainContainer = Instance.new("Frame")
+    MainContainer.Name = "WindowsUI"
+    MainContainer.Size = UDim2.new(1, 0, 1, 0)
+    MainContainer.BackgroundTransparency = 1
+    MainContainer.BorderSizePixel = 0
+    MainContainer.Parent = SectionView
+    MainContainer.ZIndex = 100 -- Ensure it stays on top of other Help items
 
     -- 1. HOMEPAGE (Lock Screen)
-    local Homepage = Instance.new("ImageLabel", Container)
+    local Homepage = Instance.new("ImageLabel")
+    Homepage.Name = "Homepage"
     Homepage.Size = UDim2.new(1, 0, 1, 0)
     Homepage.Image = "rbxassetid://8638932437"
+    Homepage.ScaleType = Enum.ScaleType.Crop
     Homepage.ZIndex = 10
+    Homepage.Parent = MainContainer
 
-    local TimeLabel = Instance.new("TextLabel", Homepage)
-    TimeLabel.Size = UDim2.new(1, 0, 0, 100)
-    TimeLabel.Position = UDim2.new(0, 20, 0, 50)
+    local TimeLabel = Instance.new("TextLabel")
+    TimeLabel.Size = UDim2.new(1, 0, 0, 80)
+    TimeLabel.Position = UDim2.new(0, 25, 0, 40)
     TimeLabel.BackgroundTransparency = 1
-    TimeLabel.TextColor3 = Color3.new(1, 1, 1)
     TimeLabel.Font = Enum.Font.SourceSansLight
-    TimeLabel.TextSize = 80
-    TimeLabel.TextXAlignment = "Left"
+    TimeLabel.TextSize = 72
+    TimeLabel.TextColor3 = Color3.new(1, 1, 1)
+    TimeLabel.TextXAlignment = Enum.TextXAlignment.Left
+    TimeLabel.Parent = Homepage
 
-    -- Clock Update
+    -- Clock Update Logic
     task.spawn(function()
-        while task.wait(1) do
+        while MainContainer.Parent do
             TimeLabel.Text = os.date("%H:%M")
+            task.wait(1)
         end
     end)
 
-    -- 2. MAIN PAGE
-    local MainPage = Instance.new("Frame", Container)
-    MainPage.Size = UDim2.new(1, 0, 1, 0)
-    MainPage.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    MainPage.Visible = false
-    MainPage.ZIndex = 5
+    -- 2. MAIN PAGE (Content)
+    local ContentPage = Instance.new("Frame")
+    ContentPage.Name = "MainPage"
+    ContentPage.Size = UDim2.new(1, 0, 1, 0)
+    ContentPage.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
+    ContentPage.Visible = false
+    ContentPage.Parent = MainContainer
 
-    -- Profile Pic
-    local ProfilePic = Instance.new("ImageLabel", MainPage)
-    ProfilePic.Size = UDim2.new(0, 60, 0, 60)
-    ProfilePic.Position = UDim2.new(0, 10, 0, 10)
-    ProfilePic.Image = "rbxassetid://5263851004"
-    Instance.new("UICorner", ProfilePic).CornerRadius = UDim.new(1, 0)
+    -- Profile Picture
+    local Pfp = Instance.new("ImageLabel")
+    Pfp.Size = UDim2.new(0, 50, 0, 50)
+    Pfp.Position = UDim2.new(0, 15, 0, 15)
+    Pfp.Image = "rbxassetid://5263851004"
+    Pfp.BackgroundTransparency = 1
+    Pfp.Parent = ContentPage
+    Instance.new("UICorner", Pfp).CornerRadius = UDim.new(1, 0)
 
-    -- Content Sections (Chatlogs, Scripts, Credits)
-    local function CreateSection(name, pos)
-        local lbl = Instance.new("TextLabel", MainPage)
-        lbl.Size = UDim2.new(1, -20, 0, 40)
-        lbl.Position = pos
-        lbl.Text = " > " .. name
-        lbl.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    -- Section Labels
+    local function CreateLabel(text, yPos)
+        local lbl = Instance.new("TextLabel")
+        lbl.Size = UDim2.new(1, -30, 0, 35)
+        lbl.Position = UDim2.new(0, 15, 0, yPos)
+        lbl.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        lbl.Text = "  " .. text
         lbl.TextColor3 = Color3.new(1, 1, 1)
         lbl.Font = Enum.Font.SourceSansBold
         lbl.TextSize = 20
-        lbl.TextXAlignment = "Left"
+        lbl.TextXAlignment = Enum.TextXAlignment.Left
+        lbl.Parent = ContentPage
         Instance.new("UICorner", lbl)
     end
 
-    CreateSection("Chatlogs", UDim2.new(0, 10, 0, 80))
-    CreateSection("Scripts", UDim2.new(0, 10, 0, 130))
-    CreateSection("Credits", UDim2.new(0, 10, 0, 180))
+    CreateLabel("Chatlogs", 80)
+    CreateLabel("Scripts", 125)
+    CreateLabel("Credits", 170)
 
-    -- SWIPE TO UNLOCK LOGIC
-    local SwipeBar = Instance.new("Frame", Homepage)
-    SwipeBar.Size = UDim2.new(0.6, 0, 0, 40)
-    SwipeBar.Position = UDim2.new(0.2, 0, 0.8, 0)
-    SwipeBar.BackgroundColor3 = Color3.new(0,0,0)
-    SwipeBar.BackgroundTransparency = 0.5
+    -- 3. SWIPE TO UNLOCK
+    local UnlockButton = Instance.new("TextButton")
+    UnlockButton.Size = UDim2.new(0.5, 0, 0, 40)
+    UnlockButton.Position = UDim2.new(0.25, 0, 0.8, 0)
+    UnlockButton.BackgroundColor3 = Color3.new(1, 1, 1)
+    UnlockButton.BackgroundTransparency = 0.4
+    UnlockButton.Text = "Click to Unlock"
+    UnlockButton.Font = Enum.Font.SourceSansBold
+    UnlockButton.TextColor3 = Color3.new(0, 0, 0)
+    UnlockButton.TextSize = 20
+    UnlockButton.Parent = Homepage
+    Instance.new("UICorner", UnlockButton)
 
-    local Slider = Instance.new("TextButton", SwipeBar)
-    Slider.Size = UDim2.new(0.2, 0, 1, 0)
-    Slider.Text = ">>>"
-    Slider.BackgroundColor3 = Color3.new(1,1,1)
-
-    Slider.MouseButton1Down:Connect(function()
-        local tween = game:GetService("TweenService"):Create(Homepage, TweenInfo.new(0.5), {Position = UDim2.new(0, 0, -1, 0)})
-        tween:Play()
-        MainPage.Visible = true
-        tween.Completed:Connect(function() Homepage.Visible = false end)
+    UnlockButton.MouseButton1Click:Connect(function()
+        Homepage:TweenPosition(UDim2.new(0, 0, -1, 0), "Out", "Quad", 0.5)
+        task.wait(0.5)
+        Homepage.Visible = false
+        ContentPage.Visible = true
     end)
 end

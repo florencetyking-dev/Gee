@@ -1,24 +1,20 @@
 function Library.AddWindowsTab()
-    -- Hijacks the Help section as requested
     local WinSection = Library.Section("Help")
     WinSection.Title("Windows 11")
     
-    -- We need to find the specific Help view frame to parent our custom overlay
     local SectionView = PageViewInnerFrame:FindFirstChild("Help")
     if not SectionView then return end
 
-    -- Custom UI Container
+    -- Custom UI Container (Using Scale for Mobile)
     local MainContainer = Instance.new("Frame")
     MainContainer.Name = "WindowsUI"
     MainContainer.Size = UDim2.new(1, 0, 1, 0)
     MainContainer.BackgroundTransparency = 1
-    MainContainer.BorderSizePixel = 0
     MainContainer.Parent = SectionView
-    MainContainer.ZIndex = 100 -- Ensure it stays on top of other Help items
+    MainContainer.ZIndex = 100
 
     -- 1. HOMEPAGE (Lock Screen)
     local Homepage = Instance.new("ImageLabel")
-    Homepage.Name = "Homepage"
     Homepage.Size = UDim2.new(1, 0, 1, 0)
     Homepage.Image = "rbxassetid://8638932437"
     Homepage.ScaleType = Enum.ScaleType.Crop
@@ -26,16 +22,15 @@ function Library.AddWindowsTab()
     Homepage.Parent = MainContainer
 
     local TimeLabel = Instance.new("TextLabel")
-    TimeLabel.Size = UDim2.new(1, 0, 0, 80)
-    TimeLabel.Position = UDim2.new(0, 25, 0, 40)
+    TimeLabel.Size = UDim2.new(0.9, 0, 0.2, 0)
+    TimeLabel.Position = UDim2.new(0.05, 0, 0.1, 0)
     TimeLabel.BackgroundTransparency = 1
     TimeLabel.Font = Enum.Font.SourceSansLight
-    TimeLabel.TextSize = 72
+    TimeLabel.TextSize = 60 -- Adjusted for mobile
     TimeLabel.TextColor3 = Color3.new(1, 1, 1)
-    TimeLabel.TextXAlignment = Enum.TextXAlignment.Left
+    TimeLabel.TextXAlignment = Enum.TextXAlignment.Center
     TimeLabel.Parent = Homepage
 
-    -- Clock Update Logic
     task.spawn(function()
         while MainContainer.Parent do
             TimeLabel.Text = os.date("%H:%M")
@@ -43,59 +38,78 @@ function Library.AddWindowsTab()
         end
     end)
 
-    -- 2. MAIN PAGE (Content)
-    local ContentPage = Instance.new("Frame")
-    ContentPage.Name = "MainPage"
-    ContentPage.Size = UDim2.new(1, 0, 1, 0)
-    ContentPage.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
-    ContentPage.Visible = false
-    ContentPage.Parent = MainContainer
+    -- 2. MAIN PAGE
+    local MainPage = Instance.new("Frame")
+    MainPage.Size = UDim2.new(1, 0, 1, 0)
+    MainPage.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    MainPage.Visible = false
+    MainPage.Parent = MainContainer
 
-    -- Profile Picture
+    -- Profile Pic
     local Pfp = Instance.new("ImageLabel")
-    Pfp.Size = UDim2.new(0, 50, 0, 50)
-    Pfp.Position = UDim2.new(0, 15, 0, 15)
+    Pfp.Size = UDim2.new(0, 60, 0, 60)
+    Pfp.Position = UDim2.new(0.5, -30, 0.1, 0)
     Pfp.Image = "rbxassetid://5263851004"
     Pfp.BackgroundTransparency = 1
-    Pfp.Parent = ContentPage
+    Pfp.Parent = MainPage
     Instance.new("UICorner", Pfp).CornerRadius = UDim.new(1, 0)
 
-    -- Section Labels
-    local function CreateLabel(text, yPos)
-        local lbl = Instance.new("TextLabel")
-        lbl.Size = UDim2.new(1, -30, 0, 35)
-        lbl.Position = UDim2.new(0, 15, 0, yPos)
-        lbl.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-        lbl.Text = "  " .. text
-        lbl.TextColor3 = Color3.new(1, 1, 1)
-        lbl.Font = Enum.Font.SourceSansBold
-        lbl.TextSize = 20
-        lbl.TextXAlignment = Enum.TextXAlignment.Left
-        lbl.Parent = ContentPage
-        Instance.new("UICorner", lbl)
+    -- List Items
+    local function CreateItem(text, yPos)
+        local btn = Instance.new("TextButton")
+        btn.Size = UDim2.new(0.8, 0, 0, 45)
+        btn.Position = UDim2.new(0.1, 0, yPos, 0)
+        btn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+        btn.Text = "  " .. text
+        btn.TextColor3 = Color3.new(1, 1, 1)
+        btn.Font = Enum.Font.SourceSansBold
+        btn.TextSize = 22
+        btn.TextXAlignment = Enum.TextXAlignment.Left
+        btn.Parent = MainPage
+        Instance.new("UICorner", btn)
     end
 
-    CreateLabel("Chatlogs", 80)
-    CreateLabel("Scripts", 125)
-    CreateLabel("Credits", 170)
+    CreateItem("Chatlogs", 0.3)
+    CreateItem("Scripts", 0.45)
+    CreateItem("Credits", 0.6)
 
-    -- 3. SWIPE TO UNLOCK
-    local UnlockButton = Instance.new("TextButton")
-    UnlockButton.Size = UDim2.new(0.5, 0, 0, 40)
-    UnlockButton.Position = UDim2.new(0.25, 0, 0.8, 0)
-    UnlockButton.BackgroundColor3 = Color3.new(1, 1, 1)
-    UnlockButton.BackgroundTransparency = 0.4
-    UnlockButton.Text = "Click to Unlock"
-    UnlockButton.Font = Enum.Font.SourceSansBold
-    UnlockButton.TextColor3 = Color3.new(0, 0, 0)
-    UnlockButton.TextSize = 20
-    UnlockButton.Parent = Homepage
-    Instance.new("UICorner", UnlockButton)
+    -- 3. MOBILE-FRIENDLY SWIPE BAR
+    local SwipeBar = Instance.new("Frame")
+    SwipeBar.Size = UDim2.new(0.7, 0, 0, 50)
+    SwipeBar.Position = UDim2.new(0.15, 0, 0.8, 0)
+    SwipeBar.BackgroundColor3 = Color3.new(0, 0, 0)
+    SwipeBar.BackgroundTransparency = 0.6
+    SwipeBar.Parent = Homepage
+    Instance.new("UICorner", SwipeBar).CornerRadius = UDim.new(0.5, 0)
 
-    UnlockButton.MouseButton1Click:Connect(function()
-        Homepage:TweenPosition(UDim2.new(0, 0, -1, 0), "Out", "Quad", 0.5)
-        task.wait(0.5)
-        Homepage.Visible = false
-        ContentPage.Visible = true
+    local Slider = Instance.new("TextButton")
+    Slider.Size = UDim2.new(0.25, 0, 1, 0)
+    Slider.BackgroundColor3 = Color3.new(1, 1, 1)
+    Slider.Text = ">>>"
+    Slider.TextColor3 = Color3.new(0, 0, 0)
+    Slider.Parent = SwipeBar
+    Instance.new("UICorner", Slider).CornerRadius = UDim.new(0.5, 0)
+
+    -- Swipe Logic
+    local dragging = false
+    Slider.MouseButton1Down:Connect(function() dragging = true end)
+    
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local relativeX = (input.Position.X - SwipeBar.AbsolutePosition.X) / SwipeBar.AbsoluteSize.X
+            local clampedX = math.clamp(relativeX - 0.125, 0, 0.75)
+            Slider.Position = UDim2.new(clampedX, 0, 0, 0)
+            
+            if clampedX >= 0.7 then
+                dragging = false
+                Homepage:TweenPosition(UDim2.new(0, 0, -1, 0), "Out", "Quad", 0.4)
+                task.wait(0.4)
+                MainPage.Visible = true
+            end
+        end
     end)
+    
+    game:GetService("UserInputService").InputEnded:Connect(function() dragging = false end)
 end
+
+Library.AddWindowsTab()

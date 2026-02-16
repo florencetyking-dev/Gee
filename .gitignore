@@ -1,126 +1,83 @@
-local Players = game:GetService("Players")
-local lp = Players.LocalPlayer
+function Library.WindowsTab()
+    local WinTab = Library.Section("Help") -- Hijacks the Help tab for this view
+    WinTab.Title("Windows")
 
--- 1. MAIN UI SETUP
-local screenGui = Instance.new("ScreenGui", lp.PlayerGui)
-screenGui.Name = "JoJoPhone_Unified"
-screenGui.ResetOnSpawn = false
+    -- Main Container
+    local Container = Instance.new("Frame", PageViewInnerFrame:FindFirstChild("Help"))
+    Container.Size = UDim2.new(1, 0, 1, 0)
+    Container.BackgroundTransparency = 1
+    Container.Name = "WindowsContainer"
 
-local phone = Instance.new("Frame", screenGui)
-phone.Size = UDim2.new(0.35, 0, 0.7, 0)
-phone.Position = UDim2.new(0.5, 0, 0.5, 0)
-phone.AnchorPoint = Vector2.new(0.5, 0.5)
-phone.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-Instance.new("UICorner", phone).CornerRadius = UDim.new(0.08, 0)
-Instance.new("UIAspectRatioConstraint", phone).AspectRatio = 0.54
+    -- 1. HOMEPAGE (Lock Screen)
+    local Homepage = Instance.new("ImageLabel", Container)
+    Homepage.Size = UDim2.new(1, 0, 1, 0)
+    Homepage.Image = "rbxassetid://8638932437"
+    Homepage.ZIndex = 10
 
--- JoJo Background (Giorno/JoJo themed placeholder)
-local bg = Instance.new("ImageLabel", phone)
-bg.Size = UDim2.new(1, 0, 1, 0)
-bg.Image = "rbxassetid://9142678957" -- JoJo Theme Wallpaper
-bg.ScaleType = Enum.ScaleType.Crop
-Instance.new("UICorner", bg).CornerRadius = UDim.new(0.08, 0)
+    local TimeLabel = Instance.new("TextLabel", Homepage)
+    TimeLabel.Size = UDim2.new(1, 0, 0, 100)
+    TimeLabel.Position = UDim2.new(0, 20, 0, 50)
+    TimeLabel.BackgroundTransparency = 1
+    TimeLabel.TextColor3 = Color3.new(1, 1, 1)
+    TimeLabel.Font = Enum.Font.SourceSansLight
+    TimeLabel.TextSize = 80
+    TimeLabel.TextXAlignment = "Left"
 
--- 2. NAVIGATION SYSTEMS
-local home = Instance.new("Frame", phone)
-home.Size = UDim2.new(1, 0, 1, 0)
-home.BackgroundTransparency = 1
-
-local listPage = Instance.new("ScrollingFrame", phone)
-listPage.Size = UDim2.new(0.9, 0, 0.75, 0)
-listPage.Position = UDim2.new(0.05, 0, 0.12, 0)
-listPage.Visible = false
-listPage.BackgroundTransparency = 1
-listPage.CanvasSize = UDim2.new(0, 0, 0, 0)
-local listLayout = Instance.new("UIListLayout", listPage)
-listLayout.Padding = UDim.new(0, 8)
-
-local function showPage(title)
-    home.Visible = false
-    listPage.Visible = true
-    listPage:ClearAllChildren()
-    local nl = Instance.new("UIListLayout", listPage)
-    nl.Padding = UDim.new(0, 8)
-end
-
-local function addBtn(text, func)
-    local btn = Instance.new("TextButton", listPage)
-    btn.Size = UDim2.new(1, 0, 0, 45)
-    btn.Text = text
-    btn.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
-    btn.TextColor3 = Color3.new(1, 1, 1)
-    btn.Font = Enum.Font.GothamMedium
-    btn.TextScaled = true
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
-    btn.MouseButton1Click:Connect(func)
-end
-
--- 3. THE "STUFF" (SCRIPTS)
--- CAT ANIMATION LOGIC
-local function runCatAnim()
-    local char = lp.Character or lp.CharacterAdded:Wait()
-    local hum = char:WaitForChild("Humanoid")
-    if char:FindFirstChild("Animate") then char.Animate:Destroy() end
-    local anim = Instance.new("Animation")
-    anim.AnimationId = "rbxassetid://130995344283026"
-    local load = hum:LoadAnimation(anim)
-    load.Looped = true
-    load:Play()
-    hum.WalkSpeed = 45
-end
-
--- TREZ ADMIN LOGIC
-local function runTrez()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com"))()
-end
-
--- 4. HOME SCREEN APPS
-local grid = Instance.new("UIGridLayout", home)
-grid.CellSize = UDim2.new(0.28, 0, 0.15, 0)
-grid.Padding = UDim2.new(0.04, 0, 0.05, 0)
-
-local function createApp(name, action)
-    local app = Instance.new("TextButton", home)
-    app.Text = name
-    app.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
-    app.TextColor3 = Color3.new(1, 1, 1)
-    app.TextScaled = true
-    Instance.new("UICorner", app)
-    app.MouseButton1Click:Connect(action)
-end
-
-createApp("Logs", function()
-    showPage()
-    -- Simple logger integration
-    lp.Chatted:Connect(function(msg)
-        local l = Instance.new("TextLabel", listPage)
-        l.Size = UDim2.new(1, 0, 0, 20)
-        l.Text = lp.Name .. ": " .. msg
-        l.BackgroundTransparency = 1
-        l.TextColor3 = Color3.new(1, 1, 1)
-        l.TextScaled = true
-        listPage.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y)
+    -- Clock Update
+    task.spawn(function()
+        while task.wait(1) do
+            TimeLabel.Text = os.date("%H:%M")
+        end
     end)
-end)
 
-createApp("Hubs", function()
-    showPage()
-    addBtn("Execute Trez Admin", runTrez)
-end)
+    -- 2. MAIN PAGE
+    local MainPage = Instance.new("Frame", Container)
+    MainPage.Size = UDim2.new(1, 0, 1, 0)
+    MainPage.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    MainPage.Visible = false
+    MainPage.ZIndex = 5
 
-createApp("Anims", function()
-    showPage()
-    addBtn("Start Cat Animation", runCatAnim)
-end)
+    -- Profile Pic
+    local ProfilePic = Instance.new("ImageLabel", MainPage)
+    ProfilePic.Size = UDim2.new(0, 60, 0, 60)
+    ProfilePic.Position = UDim2.new(0, 10, 0, 10)
+    ProfilePic.Image = "rbxassetid://5263851004"
+    Instance.new("UICorner", ProfilePic).CornerRadius = UDim.new(1, 0)
 
--- Home Bar to return
-local homeBtn = Instance.new("TextButton", phone)
-homeBtn.Size = UDim2.new(0.4, 0, 0.02, 0)
-homeBtn.Position = UDim2.new(0.3, 0, 0.96, 0)
-homeBtn.Text = ""
-homeBtn.BackgroundColor3 = Color3.new(1, 1, 1)
-Instance.new("UICorner", homeBtn)
-homeBtn.MouseButton1Click:Connect(function()
-    home.Visible = true
-    listPage.Visible = false
-end)
+    -- Content Sections (Chatlogs, Scripts, Credits)
+    local function CreateSection(name, pos)
+        local lbl = Instance.new("TextLabel", MainPage)
+        lbl.Size = UDim2.new(1, -20, 0, 40)
+        lbl.Position = pos
+        lbl.Text = " > " .. name
+        lbl.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+        lbl.TextColor3 = Color3.new(1, 1, 1)
+        lbl.Font = Enum.Font.SourceSansBold
+        lbl.TextSize = 20
+        lbl.TextXAlignment = "Left"
+        Instance.new("UICorner", lbl)
+    end
+
+    CreateSection("Chatlogs", UDim2.new(0, 10, 0, 80))
+    CreateSection("Scripts", UDim2.new(0, 10, 0, 130))
+    CreateSection("Credits", UDim2.new(0, 10, 0, 180))
+
+    -- SWIPE TO UNLOCK LOGIC
+    local SwipeBar = Instance.new("Frame", Homepage)
+    SwipeBar.Size = UDim2.new(0.6, 0, 0, 40)
+    SwipeBar.Position = UDim2.new(0.2, 0, 0.8, 0)
+    SwipeBar.BackgroundColor3 = Color3.new(0,0,0)
+    SwipeBar.BackgroundTransparency = 0.5
+
+    local Slider = Instance.new("TextButton", SwipeBar)
+    Slider.Size = UDim2.new(0.2, 0, 1, 0)
+    Slider.Text = ">>>"
+    Slider.BackgroundColor3 = Color3.new(1,1,1)
+
+    Slider.MouseButton1Down:Connect(function()
+        local tween = game:GetService("TweenService"):Create(Homepage, TweenInfo.new(0.5), {Position = UDim2.new(0, 0, -1, 0)})
+        tween:Play()
+        MainPage.Visible = true
+        tween.Completed:Connect(function() Homepage.Visible = false end)
+    end)
+end
